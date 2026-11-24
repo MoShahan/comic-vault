@@ -44,11 +44,59 @@ export type ImportOptions = {
   isCancelled?: () => boolean;
 };
 
+export type ImportFailure = {
+  fileName: string;
+  reason: string;
+};
+
+export type FolderImportResult = {
+  comics: Comic[];
+  failures: ImportFailure[];
+  skippedDuplicates: number;
+  summaryMessage: string;
+};
+
 class DuplicateComicError extends Error {
   constructor(fileName: string) {
     super(`Already in library: ${fileName}`);
     this.name = 'DuplicateComicError';
   }
+}
+
+function errorReason(error: unknown): string {
+  if (error instanceof Error && error.message.trim()) return error.message.trim();
+  return 'Unknown error';
+}
+
+function buildImportSummary(
+  imported: number,
+  skipped: number,
+  failures: ImportFailure[],
+): string {
+  const parts: string[] = [];
+  if (imported > 0) {
+    parts.push(`Added ${imported}`);
+  }
+  if (skipped > 0) {
+    parts.push(`skipped ${skipped} duplicate${skipped === 1 ? '' : 's'}`);
+  }
+  if (failures.length > 0) {
+    parts.push(`${failures.length} failed`);
+  }
+
+  if (parts.length === 0) {
+    return 'No comics were added.';
+  }
+
+  let message = `${parts.join(', ')}.`;
+  if (failures.length > 0) {
+    const shown = failures.slice(0, 3);
+    const detail = shown.map((f) => `• ${f.fileName}: ${f.reason}`).join('\n');
+    const extra =
+      failures.length > 3 ? `\n…and ${failures.length - 3} more` : '';
+    message = `${message}\n\n${detail}${extra}`;
+  }
+  return message;
 }
 
 async function importSingleSource(source: ImportSource, options: ImportOptions): Promise<Comic> {
@@ -140,8 +188,12 @@ async function importSingleSource(source: ImportSource, options: ImportOptions):
   }
 }
 
-async function importSources(sources: ImportSource[], options: ImportOptions): Promise<Comic[]> {
+async function importSources(
+  sources: ImportSource[],
+  options: ImportOptions,
+): Promise<FolderImportResult> {
   const imported: Comic[] = [];
+  const failures: ImportFailure[] = [];
   const seenInBatch = new Set<string>();
   let skipped = 0;
 
@@ -187,36 +239,41 @@ async function importSources(sources: ImportSource[], options: ImportOptions): P
         });
         continue;
       }
-      if (__DEV__) {
-        console.warn('Import failed for', source.name, error);
-      }
+      const reason = errorReason(error);
+      failures.push({ fileName: source.name, reason });
+      console.warn('Import failed for', source.name, error);
+      options.onProgress?.({
+        phase: 'error',
+        current: i + 1,
+        total: sources.length,
+        message: `Failed ${source.name}: ${reason}`,
+      });
     }
   }
 
-  if (imported.length === 0 && skipped > 0) {
-    options.onProgress?.({
-      phase: 'done',
-      current: sources.length,
-      total: sources.length,
-      message: `All ${skipped} comic${skipped === 1 ? '' : 's'} already in library`,
-    });
-  } else if (skipped > 0) {
-    options.onProgress?.({
-      phase: 'done',
-      current: sources.length,
-      total: sources.length,
-      message: `Added ${imported.length}, skipped ${skipped} duplicate${skipped === 1 ? '' : 's'}`,
-    });
-  }
+  const summaryMessage = buildImportSummary(imported.length, skipped, failures);
+  options.onProgress?.({
+    phase: failures.length > 0 && imported.length === 0 ? 'error' : 'done',
+    current: sources.length,
+    total: sources.length,
+    message: summaryMessage,
+  });
 
-  return imported;
+  return {
+    comics: imported,
+    failures,
+    skippedDuplicates: skipped,
+    summaryMessage,
+  };
 }
 
 /**
  * Android: pick a folder via Storage Access Framework and add every
  * .cbz / .zip found in that folder (top level only) to the library.
  */
-export async function pickFolderAndImportComics(options: ImportOptions = {}): Promise<Comic[]> {
+export async function pickFolderAndImportComics(
+  options: ImportOptions = {},
+): Promise<FolderImportResult> {
   if (Platform.OS !== 'android') {
     throw new Error(
       'Selecting a comics folder is available on Android. On iOS this needs a different picker in a later build.',
@@ -225,7 +282,12 @@ export async function pickFolderAndImportComics(options: ImportOptions = {}): Pr
 
   const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
   if (!permissions.granted || !permissions.directoryUri) {
-    return [];
+    return {
+      comics: [],
+      failures: [],
+      skippedDuplicates: 0,
+      summaryMessage: 'Folder access was not granted.',
+    };
   }
 
   options.onProgress?.({

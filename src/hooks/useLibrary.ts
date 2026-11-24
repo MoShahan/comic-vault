@@ -1,10 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { isCancelledError } from '@/services/extractCbz';
-import { pickFolderAndImportComics } from '@/services/importComic';
+import {
+  pickFolderAndImportComics,
+  type FolderImportResult,
+} from '@/services/importComic';
 import { useLibraryStore } from '@/store/libraryStore';
 
 import type { ImportProgress } from '@/types/comic';
+
+const EMPTY_IMPORT_RESULT: FolderImportResult = {
+  comics: [],
+  failures: [],
+  skippedDuplicates: 0,
+  summaryMessage: '',
+};
 
 export function useComicImport() {
   const refresh = useLibraryStore((s) => s.refresh);
@@ -32,10 +42,10 @@ export function useComicImport() {
     if (importing) setModalVisible(true);
   }, [importing]);
 
-  const selectFolder = useCallback(async () => {
+  const selectFolder = useCallback(async (): Promise<FolderImportResult> => {
     if (importing) {
       setModalVisible(true);
-      return [];
+      return EMPTY_IMPORT_RESULT;
     }
 
     cancelled.current = false;
@@ -48,16 +58,16 @@ export function useComicImport() {
       message: 'Starting…',
     });
     try {
-      const list = await pickFolderAndImportComics({
+      const result = await pickFolderAndImportComics({
         onProgress: setProgress,
         onComicImported: upsertLocal,
         isCancelled: () => cancelled.current,
       });
-      if (list.length) await refresh();
-      return list;
+      if (result.comics.length) await refresh();
+      return result;
     } catch (error) {
       if (isCancelledError(error)) {
-        return [];
+        return EMPTY_IMPORT_RESULT;
       }
       throw error;
     } finally {

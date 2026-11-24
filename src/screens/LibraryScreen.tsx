@@ -64,11 +64,19 @@ export function LibraryScreen() {
       showProgressModal();
       return;
     }
-    void selectFolder().catch((e: unknown) => {
-      if (isCancelledError(e)) return;
-      const message = e instanceof Error ? e.message : 'Something went wrong.';
-      Alert.alert('Could not open folder', message);
-    });
+    void selectFolder()
+      .then((result) => {
+        if (result.failures.length === 0) return;
+        Alert.alert(
+          result.comics.length > 0 ? 'Import finished with errors' : 'Import failed',
+          result.summaryMessage,
+        );
+      })
+      .catch((e: unknown) => {
+        if (isCancelledError(e)) return;
+        const message = e instanceof Error ? e.message : 'Something went wrong.';
+        Alert.alert('Could not open folder', message);
+      });
   }, [importing, selectFolder, showProgressModal]);
 
   const progressBanner =
