@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
+import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -35,16 +36,30 @@ export function ComicDetailScreen({ route, navigation }: Props) {
   const { comicId } = route.params;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const [comic, setComic] = useState<Comic | null>(null);
+  const storeComic = useLibraryStore((s) => s.comics.find((c) => c.id === comicId) ?? null);
+  const [dbComic, setDbComic] = useState<Comic | null>(null);
   const [repairing, setRepairing] = useState(false);
 
+  // Prefer the store (patched live by the Reader); fall back to the last DB load.
+  const comic = storeComic ?? dbComic;
+
   const load = useCallback(async () => {
-    setComic(await getComicById(comicId));
+    const row = await getComicById(comicId);
+    setDbComic(row);
+    if (!row) return;
+    const { comics, patchComic, upsertLocal } = useLibraryStore.getState();
+    if (comics.some((c) => c.id === row.id)) {
+      patchComic(row.id, row);
+    } else {
+      upsertLocal(row);
+    }
   }, [comicId]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  useFocusEffect(
+    useCallback(() => {
+      void load();
+    }, [load]),
+  );
 
   useEffect(() => {
     if (comic) navigation.setOptions({ title: comic.title });
@@ -72,14 +87,14 @@ export function ComicDetailScreen({ route, navigation }: Props) {
   const toggleRead = async () => {
     const next = !comic.isRead;
     await setComicRead(comic.id, next);
-    setComic({ ...comic, isRead: next });
+    setDbComic({ ...comic, isRead: next });
     useLibraryStore.getState().patchComic(comic.id, { isRead: next });
   };
 
   const toggleFavorite = async () => {
     const next = !comic.isFavorite;
     await setComicFavorite(comic.id, next);
-    setComic({ ...comic, isFavorite: next });
+    setDbComic({ ...comic, isFavorite: next });
     useLibraryStore.getState().patchComic(comic.id, { isFavorite: next });
   };
 
