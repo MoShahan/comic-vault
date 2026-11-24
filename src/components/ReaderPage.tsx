@@ -253,19 +253,21 @@ export function ReaderPage({
   const spreadLayout = useMemo(() => {
     if (!isSpreadHalf || !natural) return null;
 
-    // Contain one half in the viewport.
+    // Contain one half in the viewport (may be height-limited on tablets).
     const scaleX = width / (natural.width / 2);
     const scaleY = contentHeight / natural.height;
     const fit = Math.min(scaleX, scaleY);
     const fullW = natural.width * fit;
     const fullH = natural.height * fit;
+    const halfW = fullW / 2;
 
-    // Center the visible half horizontally and the whole image vertically.
-    const left =
-      half === 'left' ? width / 2 - fullW / 4 : width / 2 - (3 * fullW) / 4;
+    // Clip box is exactly one half wide (letterboxed when height-constrained)
+    // so the other half cannot peek at the edges.
+    const clipLeft = (width - halfW) / 2;
+    const imageLeft = half === 'left' ? 0 : -halfW;
     const top = (contentHeight - fullH) / 2;
 
-    return { fullW, fullH, left, top };
+    return { fullW, fullH, halfW, clipLeft, imageLeft, top };
   }, [isSpreadHalf, half, natural, width, contentHeight]);
 
   const fullContentPosition = 'center';
@@ -286,33 +288,52 @@ export function ReaderPage({
         >
           <Animated.View style={[{ width, height: contentHeight }, animStyle]}>
             {isSpreadHalf ? (
-              <View style={[styles.spreadViewport, { width, height: contentHeight }]}>
-                <Image
-                  source={{ uri }}
-                  onLoad={onLoad}
-                  style={
-                    spreadLayout
-                      ? {
-                          position: 'absolute',
-                          width: spreadLayout.fullW,
-                          height: spreadLayout.fullH,
-                          left: spreadLayout.left,
-                          top: spreadLayout.top,
-                        }
-                      : {
-                          // Until size is known: double-wide contain, vertically centered.
-                          width: width * 2,
-                          height: contentHeight,
-                          marginLeft: half === 'right' ? -width : 0,
-                        }
-                  }
-                  contentFit={spreadLayout ? 'fill' : 'contain'}
-                  contentPosition="center"
-                  recyclingKey={`${uri}-${half}-spread`}
-                  cachePolicy="memory-disk"
-                  transition={0}
-                />
-              </View>
+              spreadLayout ? (
+                <View
+                  style={[
+                    styles.spreadClip,
+                    {
+                      width: spreadLayout.halfW,
+                      height: contentHeight,
+                      left: spreadLayout.clipLeft,
+                    },
+                  ]}
+                >
+                  <Image
+                    source={{ uri }}
+                    onLoad={onLoad}
+                    style={{
+                      position: 'absolute',
+                      width: spreadLayout.fullW,
+                      height: spreadLayout.fullH,
+                      left: spreadLayout.imageLeft,
+                      top: spreadLayout.top,
+                    }}
+                    contentFit="fill"
+                    contentPosition="center"
+                    recyclingKey={`${uri}-${half}-spread`}
+                    cachePolicy="memory-disk"
+                    transition={0}
+                  />
+                </View>
+              ) : (
+                <View style={[styles.spreadClip, { width, height: contentHeight, left: 0 }]}>
+                  <Image
+                    source={{ uri }}
+                    onLoad={onLoad}
+                    style={{
+                      width: width * 2,
+                      height: contentHeight,
+                      marginLeft: half === 'right' ? -width : 0,
+                    }}
+                    contentFit="contain"
+                    contentPosition="center"
+                    recyclingKey={`${uri}-${half}-spread`}
+                    cachePolicy="memory-disk"
+                    transition={0}
+                  />
+                </View>
+              )
             ) : (
               <Image
                 source={{ uri }}
@@ -334,8 +355,10 @@ export function ReaderPage({
 const styles = StyleSheet.create({
   page: { backgroundColor: '#000', overflow: 'hidden' },
   clip: { overflow: 'hidden' },
-  spreadViewport: {
+  /** Hard clip to one half so height-limited fit cannot leak the other side. */
+  spreadClip: {
+    position: 'absolute',
+    top: 0,
     overflow: 'hidden',
-    justifyContent: 'center',
   },
 });
