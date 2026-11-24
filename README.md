@@ -183,10 +183,10 @@ npm run typecheck
 
 GitHub Actions on every push and pull request:
 
-| Workflow                                                                          | Checks                                  |
-| --------------------------------------------------------------------------------- | --------------------------------------- |
-| [Comic Vault - Unit Tests & Typecheck](.github/workflows/tests.yml)              | TypeScript (`tsc`) + Jest unit tests    |
-| [Comic Vault - ESLint (Import Order & Code Quality)](.github/workflows/lint.yml) | ESLint, including import groups / order |
+| Workflow                                                          | Checks                                              |
+| ----------------------------------------------------------------- | --------------------------------------------------- |
+| [Comic Vault - CI](.github/workflows/ci.yml)                      | ESLint, TypeScript (`tsc`), and Jest (parallel jobs) |
+| [Comic Vault - GitHub Pages](.github/workflows/pages.yml)         | Deploys `website/` to GitHub Pages                   |
 
 The job fails if any check fails.
 
