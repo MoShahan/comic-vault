@@ -22,7 +22,7 @@ export function isCancelledError(error: unknown): error is CancelledError {
   return error instanceof CancelledError || (error instanceof Error && error.name === 'CancelledError');
 }
 
-/** True for real OOM phrasing — not substrings like "room" / "zoom". */
+/** True for real OOM phrasing - not substrings like "room" / "zoom". */
 export function isLikelyOutOfMemoryMessage(message: string): boolean {
   return /OutOfMemory|\bOOM\b|out of memory|cannot allocate memory|allocation failed/i.test(
     message,

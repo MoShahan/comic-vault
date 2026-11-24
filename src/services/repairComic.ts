@@ -25,7 +25,7 @@ async function finalizePagesDir(
  * page list from whatever is already on disk.
  *
  * Extract always lands in `pages_tmp/` and only swaps over `pages/` after
- * success — a failed repair must not delete the user's readable pages.
+ * success - a failed repair must not delete the user's readable pages.
  */
 export async function repairComic(id: string): Promise<{ pageCount: number }> {
   if (repairingIds.has(id)) {
@@ -60,7 +60,7 @@ export async function repairComic(id: string): Promise<{ pageCount: number }> {
           throw new Error('No images found in the stored archive.');
         }
       } catch (error) {
-        // Extract failed — keep the original pagesDir untouched.
+        // Extract failed - keep the original pagesDir untouched.
         await FileSystem.deleteAsync(tempPagesDir, { idempotent: true }).catch(
           () => undefined,
         );

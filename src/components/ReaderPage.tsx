@@ -18,7 +18,7 @@ import type { SpreadHalf } from '@/types/comic';
 type Props = {
   uri: string;
   half: SpreadHalf;
-  /** Current pager step — reset local zoom when this page is left. */
+  /** Current pager step - reset local zoom when this page is left. */
   isActive: boolean;
   onZoomChange: (zoomed: boolean) => void;
   onTapCenter: () => void;
@@ -38,7 +38,7 @@ const VERTICAL_VELOCITY = 450;
 
 type NaturalSize = { width: number; height: number };
 
-/** Keep pan inside the scaled page bounds (worklet — runs on the UI thread). */
+/** Keep pan inside the scaled page bounds (worklet - runs on the UI thread). */
 function clampZoomPan(
   nextTx: number,
   nextTy: number,

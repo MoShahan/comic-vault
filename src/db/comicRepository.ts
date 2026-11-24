@@ -37,7 +37,7 @@ function mapRow(row: ComicRow): Comic {
     series: row.series,
     sourceUri: row.sourceUri,
     sourceFileName: row.sourceFileName,
-    // Legacy rows may still store absolute URIs — resolveComicPath rebases them.
+    // Legacy rows may still store absolute URIs - resolveComicPath rebases them.
     coverPath: resolveComicPath(row.coverPath),
     pagesDir: resolveComicPath(row.pagesDir),
     pageCount: row.pageCount,
@@ -97,7 +97,7 @@ export async function getComicById(id: string): Promise<Comic | null> {
 
 /**
  * Case-insensitive filename match (JS-normalized). Same archive name from
- * another folder counts as already imported — intentional for this personal shelf.
+ * another folder counts as already imported - intentional for this personal shelf.
  */
 export async function findComicBySourceFileName(fileName: string): Promise<Comic | null> {
   const key = archiveNameKey(fileName);

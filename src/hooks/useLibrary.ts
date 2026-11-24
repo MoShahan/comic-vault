@@ -28,7 +28,7 @@ export function useComicImport() {
   const [importing, setImporting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const cancelled = useRef(false);
-  /** Sync guard — `importing` state alone can miss a double-tap before re-render. */
+  /** Sync guard - `importing` state alone can miss a double-tap before re-render. */
   const inFlight = useRef(false);
 
   const cancel = useCallback(() => {

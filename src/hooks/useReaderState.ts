@@ -46,7 +46,7 @@ export function useReaderState(
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   /** Authoritative in-session position (survives step rebuilds better than React state alone). */
   const latestProgress = useRef<{ pageIndex: number; half: SpreadHalf } | null>(null);
-  /** "Read from start" must run once per open — not again when steps rebuild. */
+  /** "Read from start" must run once per open - not again when steps rebuild. */
   const appliedStartFromBeginning = useRef(false);
 
   const load = useCallback(async () => {

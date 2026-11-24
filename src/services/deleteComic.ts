@@ -7,7 +7,7 @@ import type { DeleteResult } from '@/types/comic';
 
 async function deleteSandboxFolder(comicId: string): Promise<void> {
   // Path comes from id via comicSandboxDir (asserts under comics/<id>/).
-  // Never delete using a string-replaced pagesDir — a bad suffix could escape.
+  // Never delete using a string-replaced pagesDir - a bad suffix could escape.
   const path = comicSandboxDir(comicId);
   await FileSystem.deleteAsync(path, { idempotent: true });
 }
@@ -80,7 +80,7 @@ export async function clearLibrarySandbox(): Promise<void> {
   try {
     await FileSystem.deleteAsync(comicsRoot(), { idempotent: true });
   } catch {
-    // documentDirectory unavailable — still clear DB rows.
+    // documentDirectory unavailable - still clear DB rows.
   }
   await deleteAllComicRows();
 }

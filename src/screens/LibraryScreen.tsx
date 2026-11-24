@@ -54,7 +54,7 @@ export function LibraryScreen() {
     progress,
   } = useComicImport();
 
-  // Subscribe to stable store slices only — derived lists must be memoized
+  // Subscribe to stable store slices only - derived lists must be memoized
   // (selectors that return new arrays break useSyncExternalStore / getSnapshot).
   const allComics = useLibraryStore((s) => s.comics);
   // Tab stays mounted under the stack. While blurred (e.g. Reader open), freeze

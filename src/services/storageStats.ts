@@ -64,7 +64,7 @@ export async function getLibraryStorageStats(): Promise<{
   }
 
   const folders = await FileSystem.readDirectoryAsync(comicsDir);
-  // Parallelize per comic folder — typical library shape is many mid-size trees.
+  // Parallelize per comic folder - typical library shape is many mid-size trees.
   const sizes = await mapPool(folders, SIZE_CONCURRENCY, (name) =>
     entrySize(`${comicsDir}${name}`),
   );
