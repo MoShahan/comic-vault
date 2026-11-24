@@ -71,4 +71,11 @@ module.exports = defineConfig([
       'import/no-duplicates': 'error',
     },
   },
+  {
+    // Reanimated SharedValues are mutated from gestures / worklets on purpose.
+    files: ['src/components/ReaderPage.tsx'],
+    rules: {
+      'react-hooks/immutability': 'off',
+    },
+  },
 ]);

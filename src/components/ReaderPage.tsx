@@ -98,8 +98,7 @@ export function ReaderPage({
   const boundH = useSharedValue(contentHeight);
   const isActiveSV = useSharedValue(isActive);
 
-  // Keep layout / active flags on the UI thread without useEffect mutations
-  // (react-hooks/immutability flags SharedValue writes that also appear in effects).
+  // Sync layout / active flags onto the UI thread (SharedValue writes; see eslint override).
   boundW.value = width;
   boundH.value = contentHeight;
   isActiveSV.value = isActive;
