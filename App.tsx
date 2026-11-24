@@ -11,6 +11,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { getDb } from '@/db/database';
 import { RootNavigator } from '@/navigation/RootNavigator';
+import { purgeOrphanComicFolders } from '@/services/orphanCleanup';
 import { ThemeProvider, useTheme } from '@/theme';
 import { darkColors } from '@/theme/colors';
 
@@ -86,7 +87,14 @@ export default function App() {
     setDbError(null);
     setDbReady(false);
     void getDb()
-      .then(() => setDbReady(true))
+      .then(async () => {
+        try {
+          await purgeOrphanComicFolders();
+        } catch {
+          // Best-effort; do not block boot on cleanup failure.
+        }
+        setDbReady(true);
+      })
       .catch((error: unknown) => {
         const message =
           error instanceof Error && error.message.trim()

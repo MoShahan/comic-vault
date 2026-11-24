@@ -167,6 +167,12 @@ export async function updateComicPrefs(
   );
 }
 
+export async function getAllComicIds(): Promise<string[]> {
+  const db = await getDb();
+  const rows = await db.getAllAsync<{ id: string }>('SELECT id FROM comics');
+  return rows.map((row) => row.id);
+}
+
 export async function deleteComicRow(id: string): Promise<void> {
   const db = await getDb();
   await db.runAsync('DELETE FROM comics WHERE id = ?', [id]);
