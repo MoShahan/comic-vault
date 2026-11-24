@@ -5,18 +5,21 @@ import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Image, type ImageLoadEventData } from 'expo-image';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
-  runOnJS,
+  useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import type { SpreadHalf } from '@/types/comic';
 
 type Props = {
   uri: string;
   half: SpreadHalf;
+  /** Current pager step — reset local zoom when this page is left. */
+  isActive: boolean;
   onZoomChange: (zoomed: boolean) => void;
   onTapCenter: () => void;
   onTapLeft: () => void;
@@ -35,9 +38,26 @@ const VERTICAL_VELOCITY = 450;
 
 type NaturalSize = { width: number; height: number };
 
+function clampZoomPan(
+  nextTx: number,
+  nextTy: number,
+  nextScale: number,
+  boundW: number,
+  boundH: number,
+): { x: number; y: number } {
+  'worklet';
+  const maxX = Math.max(0, ((nextScale - 1) * boundW) / 2);
+  const maxY = Math.max(0, ((nextScale - 1) * boundH) / 2);
+  return {
+    x: Math.min(maxX, Math.max(-maxX, nextTx)),
+    y: Math.min(maxY, Math.max(-maxY, nextTy)),
+  };
+}
+
 export function ReaderPage({
   uri,
   half,
+  isActive,
   onZoomChange,
   onTapCenter,
   onTapLeft,
@@ -74,6 +94,26 @@ export function ReaderPage({
   const startTy = useSharedValue(0);
   const touchStartX = useSharedValue(0);
   const touchStartY = useSharedValue(0);
+  const boundW = useSharedValue(width);
+  const boundH = useSharedValue(contentHeight);
+  const isActiveSV = useSharedValue(isActive);
+
+  // Keep layout / active flags on the UI thread without useEffect mutations
+  // (react-hooks/immutability flags SharedValue writes that also appear in effects).
+  boundW.value = width;
+  boundH.value = contentHeight;
+  isActiveSV.value = isActive;
+
+  useAnimatedReaction(
+    () => isActiveSV.value,
+    (active, prev) => {
+      if (!active && prev) {
+        scale.value = 1;
+        tx.value = 0;
+        ty.value = 0;
+      }
+    },
+  );
 
   const pinch = Gesture.Pinch()
     .onBegin(() => {
@@ -81,15 +121,21 @@ export function ReaderPage({
     })
     .onUpdate((e) => {
       scale.value = Math.min(4, Math.max(1, startScale.value * e.scale));
+      const clamped = clampZoomPan(tx.value, ty.value, scale.value, boundW.value, boundH.value);
+      tx.value = clamped.x;
+      ty.value = clamped.y;
     })
     .onEnd(() => {
       if (scale.value < 1.05) {
         scale.value = withTiming(1);
         tx.value = withTiming(0);
         ty.value = withTiming(0);
-        runOnJS(onZoomChange)(false);
+        scheduleOnRN(onZoomChange, false);
       } else {
-        runOnJS(onZoomChange)(true);
+        const clamped = clampZoomPan(tx.value, ty.value, scale.value, boundW.value, boundH.value);
+        tx.value = withTiming(clamped.x);
+        ty.value = withTiming(clamped.y);
+        scheduleOnRN(onZoomChange, true);
       }
     });
 
@@ -108,8 +154,15 @@ export function ReaderPage({
       startTy.value = ty.value;
     })
     .onUpdate((e) => {
-      tx.value = startTx.value + e.translationX;
-      ty.value = startTy.value + e.translationY;
+      const clamped = clampZoomPan(
+        startTx.value + e.translationX,
+        startTy.value + e.translationY,
+        scale.value,
+        boundW.value,
+        boundH.value,
+      );
+      tx.value = clamped.x;
+      ty.value = clamped.y;
     });
 
   // Vertical page turns live on the page (PagerView steals parent pans).
@@ -144,8 +197,8 @@ export function ReaderPage({
         e.translationY < -VERTICAL_TURN || e.velocityY < -VERTICAL_VELOCITY;
       const down =
         e.translationY > VERTICAL_TURN || e.velocityY > VERTICAL_VELOCITY;
-      if (up && onSwipeUp) runOnJS(onSwipeUp)();
-      else if (down && onSwipeDown) runOnJS(onSwipeDown)();
+      if (up && onSwipeUp) scheduleOnRN(onSwipeUp);
+      else if (down && onSwipeDown) scheduleOnRN(onSwipeDown);
     });
 
   const edgeLeft = width * 0.28;
@@ -157,8 +210,8 @@ export function ReaderPage({
     .maxDuration(250)
     .onEnd((e) => {
       if (scale.value > 1.05) return;
-      if (e.x < edgeLeft) runOnJS(onTapLeft)();
-      else if (e.x > edgeRight) runOnJS(onTapRight)();
+      if (e.x < edgeLeft) scheduleOnRN(onTapLeft);
+      else if (e.x > edgeRight) scheduleOnRN(onTapRight);
     });
 
   // Double-tap zoom only in the center band so it cannot steal edge turns.
@@ -172,10 +225,10 @@ export function ReaderPage({
         scale.value = withTiming(1);
         tx.value = withTiming(0);
         ty.value = withTiming(0);
-        runOnJS(onZoomChange)(false);
+        scheduleOnRN(onZoomChange, false);
       } else {
         scale.value = withTiming(2.2);
-        runOnJS(onZoomChange)(true);
+        scheduleOnRN(onZoomChange, true);
       }
     });
 
@@ -183,7 +236,7 @@ export function ReaderPage({
     .maxDuration(250)
     .onEnd((e) => {
       if (scale.value > 1.05) return;
-      if (e.x >= edgeLeft && e.x <= edgeRight) runOnJS(onTapCenter)();
+      if (e.x >= edgeLeft && e.x <= edgeRight) scheduleOnRN(onTapCenter);
     });
 
   const composed = Gesture.Simultaneous(

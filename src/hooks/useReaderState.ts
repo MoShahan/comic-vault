@@ -132,6 +132,11 @@ export function useReaderState(
     setStepIndex(safeStepIndex);
   }, [steps.length, stepIndex, safeStepIndex]);
 
+  // Scrub / swipe / tap leaves the zoomed page; clear global zoom so pager & edge taps work.
+  useEffect(() => {
+    setZoomed(false);
+  }, [safeStepIndex]);
+
   const flushProgress = useCallback(async () => {
     if (saveTimer.current) {
       clearTimeout(saveTimer.current);

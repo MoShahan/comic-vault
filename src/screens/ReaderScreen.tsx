@@ -138,6 +138,7 @@ export function ReaderScreen({ route, navigation }: Props) {
               <ReaderPage
                 uri={step.uri}
                 half={step.half}
+                isActive={index === stepIndex}
                 onZoomChange={setZoomed}
                 onTapCenter={toggleChrome}
                 onTapLeft={onTapLeft}
