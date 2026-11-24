@@ -23,6 +23,8 @@ export function useComicImport() {
   const [importing, setImporting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const cancelled = useRef(false);
+  /** Sync guard — `importing` state alone can miss a double-tap before re-render. */
+  const inFlight = useRef(false);
 
   const cancel = useCallback(() => {
     cancelled.current = true;
@@ -39,15 +41,16 @@ export function useComicImport() {
   }, []);
 
   const showProgressModal = useCallback(() => {
-    if (importing) setModalVisible(true);
-  }, [importing]);
+    if (inFlight.current) setModalVisible(true);
+  }, []);
 
   const selectFolder = useCallback(async (): Promise<FolderImportResult> => {
-    if (importing) {
+    if (inFlight.current) {
       setModalVisible(true);
       return EMPTY_IMPORT_RESULT;
     }
 
+    inFlight.current = true;
     cancelled.current = false;
     setImporting(true);
     setModalVisible(true);
@@ -71,11 +74,12 @@ export function useComicImport() {
       }
       throw error;
     } finally {
+      inFlight.current = false;
       setImporting(false);
       setModalVisible(false);
       setProgress(null);
     }
-  }, [importing, refresh, upsertLocal]);
+  }, [refresh, upsertLocal]);
 
   return {
     selectFolder,
