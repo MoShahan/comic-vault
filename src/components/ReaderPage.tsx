@@ -148,9 +148,26 @@ export function ReaderPage({
       else if (down && onSwipeDown) runOnJS(onSwipeDown)();
     });
 
-  const doubleTap = Gesture.Tap()
+  const edgeLeft = width * 0.28;
+  const edgeRight = width * 0.72;
+
+  // Edge page turns must not wait on double-tap recognition (that ~500ms lag
+  // made every turn feel slow and turned rapid edge taps into zoom).
+  const edgeTap = Gesture.Tap()
+    .maxDuration(250)
+    .onEnd((e) => {
+      if (scale.value > 1.05) return;
+      if (e.x < edgeLeft) runOnJS(onTapLeft)();
+      else if (e.x > edgeRight) runOnJS(onTapRight)();
+    });
+
+  // Double-tap zoom only in the center band so it cannot steal edge turns.
+  const centerDoubleTap = Gesture.Tap()
     .numberOfTaps(2)
-    .onEnd(() => {
+    .maxDuration(250)
+    .maxDelay(220)
+    .onEnd((e) => {
+      if (e.x < edgeLeft || e.x > edgeRight) return;
       if (scale.value > 1.05) {
         scale.value = withTiming(1);
         tx.value = withTiming(0);
@@ -162,21 +179,19 @@ export function ReaderPage({
       }
     });
 
-  const singleTap = Gesture.Tap()
+  const centerSingleTap = Gesture.Tap()
     .maxDuration(250)
     .onEnd((e) => {
       if (scale.value > 1.05) return;
-      const x = e.x;
-      if (x < width * 0.28) runOnJS(onTapLeft)();
-      else if (x > width * 0.72) runOnJS(onTapRight)();
-      else runOnJS(onTapCenter)();
+      if (e.x >= edgeLeft && e.x <= edgeRight) runOnJS(onTapCenter)();
     });
 
   const composed = Gesture.Simultaneous(
     pinch,
     zoomPan,
     verticalTurn,
-    Gesture.Exclusive(doubleTap, singleTap),
+    edgeTap,
+    Gesture.Exclusive(centerDoubleTap, centerSingleTap),
   );
 
   const animStyle = useAnimatedStyle(() => ({
