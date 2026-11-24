@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Comic Vault",
-    "slug": "ComicVault",
+    "slug": "comic-vault",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
@@ -26,6 +26,15 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-sqlite", "expo-font"]
+    "plugins": [
+      "expo-sqlite",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "86b40c09-3876-48d9-96fd-2e1c9eefc305"
+      }
+    },
+    "owner": "moshahan"
   }
 }
