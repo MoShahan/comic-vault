@@ -4,6 +4,7 @@ import { getComicById } from '@/db/comicRepository';
 import { getDb } from '@/db/database';
 import { extractCbzToDirectory, listPageFiles } from '@/services/extractCbz';
 import { comicRootFromPagesDir } from '@/services/paths';
+import { clearSpreadFlagsCache } from '@/services/spreadFlags';
 
 const repairingIds = new Set<string>();
 
@@ -79,6 +80,7 @@ export async function repairComic(id: string): Promise<{ pageCount: number }> {
       // Extract succeeded. Swap: only now remove the old pages.
       await FileSystem.deleteAsync(comic.pagesDir, { idempotent: true });
       await FileSystem.moveAsync({ from: tempPagesDir, to: comic.pagesDir });
+      await clearSpreadFlagsCache(comic.pagesDir);
       return finalizePagesDir(id, comic.pagesDir);
     }
 

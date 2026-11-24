@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
-import { Image as RNImage, useWindowDimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 
 import { getComicById, setComicRead, updateComicProgress } from '@/db/comicRepository';
-import { isSpreadImage } from '@/library/selectors';
 import { listPageFiles } from '@/services/extractCbz';
+import { loadOrProbeSpreadFlags } from '@/services/spreadFlags';
 import { useLibraryStore } from '@/store/libraryStore';
 import { useTheme } from '@/theme';
 
@@ -16,16 +16,6 @@ export type ReaderStep = {
   uri: string;
   isSpread: boolean;
 };
-
-function probeSize(uri: string): Promise<{ width: number; height: number }> {
-  return new Promise((resolve) => {
-    RNImage.getSize(
-      uri,
-      (width, height) => resolve({ width, height }),
-      () => resolve({ width: 1, height: 1 }),
-    );
-  });
-}
 
 export function useReaderState(
   comicId: string,
@@ -55,20 +45,24 @@ export function useReaderState(
     const row = await getComicById(comicId);
     if (!row) {
       setComic(null);
+      setPages([]);
+      setSpreadFlags([]);
       return;
     }
-    setComic(row);
+
     const files = await listPageFiles(row.pagesDir);
-    setPages(files);
-
+    let flags: boolean[];
     if (!settings.autoSplitSpreads || files.length === 0) {
-      setSpreadFlags(files.map(() => false));
-      return;
+      flags = files.map(() => false);
+    } else {
+      // Cached after first probe; batched concurrency avoids decoding every page at once.
+      flags = await loadOrProbeSpreadFlags(row.pagesDir, files);
     }
 
-    // Parallel size probes (much faster than sequential await-in-loop)
-    const sizes = await Promise.all(files.map((uri) => probeSize(uri)));
-    setSpreadFlags(sizes.map((s) => isSpreadImage(s.width, s.height)));
+    // Set comic + pages + flags together so steps never flash unsplit then jump.
+    setComic(row);
+    setPages(files);
+    setSpreadFlags(flags);
   }, [comicId, settings.autoSplitSpreads]);
 
   useEffect(() => {
