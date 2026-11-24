@@ -60,13 +60,14 @@ npm run lint
 npm run typecheck
 ```
 
-GitHub Actions on every push and pull request:
+GitHub Actions:
 
-| Workflow                                                          | Checks                                              |
-| ----------------------------------------------------------------- | --------------------------------------------------- |
-| [Comic Vault - CI](../.github/workflows/ci.yml)                   | ESLint, TypeScript (`tsc`), and Jest (parallel jobs) |
-| [Comic Vault - GitHub Pages](../.github/workflows/pages.yml)      | Deploys `website/` to GitHub Pages                   |
+| Workflow                                                          | When                         | Checks                                                                 |
+| ----------------------------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------- |
+| [Comic Vault - CI](../.github/workflows/ci.yml)                   | Push to `main`/`master`, PRs | ESLint, TypeScript (`tsc`), and Jest (parallel jobs)                   |
+| [Comic Vault - Build](../.github/workflows/build.yml)             | Every push and PR            | `npm ci`, `expo-doctor`, package version check, Android `expo export` |
+| [Comic Vault - GitHub Pages](../.github/workflows/pages.yml)      | Docs/site paths on `main`    | Deploys `website/` to GitHub Pages                                     |
 
-The job fails if any check fails.
+The Build workflow catches install/lockfile and production-bundle failures that can still break EAS even when lint and tests pass. Any failed job fails the workflow.
 
 **Pre-commit:** [Husky](https://typicode.github.io/husky/) runs [lint-staged](https://github.com/lint-staged/lint-staged) on `git commit`. Staged `.js` / `.jsx` / `.ts` / `.tsx` files are passed through `eslint --fix` (import order, groups, and other auto-fixable rules). Remaining lint errors block the commit. After `npm install`, the hook is installed via the `prepare` script.
