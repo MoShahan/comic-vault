@@ -14,6 +14,18 @@ Select a folder of local **CBZ** files, browse a cover-based library, and read w
 
 ---
 
+## Website
+
+A static marketing site lives in [`website/`](website/) (plain HTML, CSS, and JS). GitHub Pages branch deploy only supports `/` or `/docs`, so this repo publishes `website/` with a GitHub Action ([`.github/workflows/pages.yml`](.github/workflows/pages.yml)).
+
+1. Open the repo on GitHub → **Settings** → **Pages**
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**
+3. Push to `main` (the workflow uploads the `website` folder)
+
+The site will be available at [https://MoShahan.github.io/comic-reader-app/](https://MoShahan.github.io/comic-reader-app/). Preview locally by opening `website/index.html` in a browser or serving the `website` folder with any static file server.
+
+---
+
 ## Why this exists
 
 Built for **personal use on your own device** (Expo Go). Comics stay on your phone. Reading progress and preferences are saved locally with SQLite. **Mark as read is always a conscious choice** - finishing the last page never auto-marks a comic.

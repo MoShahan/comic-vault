@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Comic Reader — a personal, local-only comic reader for CBZ files on your phone. No accounts, no cloud, no analytics."
+    />
+    <title>Comic Reader — Your comics. Your phone. Your progress.</title>
+    <link rel="icon" type="image/png" href="./assets/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="wordmark" href="#top">
+          <img src="./assets/icon.png" alt="" width="32" height="32" />
+          <span>Comic Reader</span>
+        </a>
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="site-nav"
+          aria-label="Open menu"
+        >
+          <span></span>
+          <span></span>
+        </button>
+        <nav id="site-nav" class="site-nav" aria-label="Primary">
+          <a href="#features">Features</a>
+          <a href="#screens">Screens</a>
+          <a href="#why">Why</a>
+          <a href="#developer">Developer</a>
+          <a class="nav-cta" href="#get-app">Get the app</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section id="top" class="hero">
+        <div class="hero-glow" aria-hidden="true"></div>
+        <div class="shell hero-grid">
+          <div class="hero-copy">
+            <p class="brand-kicker">Comic Reader</p>
+            <h1>Your comics. Your phone. Your progress.</h1>
+            <p class="hero-lead">
+              A personal shelf for local CBZ files — browse covers, keep reading
+              where you left off, and leave the cloud out of it.
+            </p>
+            <div class="store-row" id="hero-stores">
+              <a class="store-btn" href="#coming-soon" aria-label="App Store — coming soon">
+                <svg viewBox="0 0 24 24" aria-hidden="true" width="22" height="22">
+                  <path
+                    fill="currentColor"
+                    d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"
+                  />
+                </svg>
+                <span>
+                  <small>Coming soon on</small>
+                  <strong>App Store</strong>
+                </span>
+              </a>
+              <a class="store-btn" href="#coming-soon" aria-label="Google Play — coming soon">
+                <svg viewBox="0 0 24 24" aria-hidden="true" width="22" height="22">
+                  <path
+                    fill="currentColor"
+                    d="M3.18 23.71c.11.07.23.11.36.11.16 0 .31-.06.44-.17l11.1-6.84-2.52-2.52zm15.15-9.37 2.37-1.46c.48-.3.48-.98 0-1.27l-2.38-1.47-2.7 2.7zm-3.48-2.12L3.62.35C3.49.24 3.33.18 3.18.18c-.13 0-.25.04-.36.11l11.64 11.64zm-11.67 10.6c.2.13.45.14.66.01l.01-.01 11.1-6.84-2.52-2.52zM3.18.29 14.53 11.6 3.18 22.95C2.54 22.52 2 21.7 2 20.68V3.32C2 2.3 2.54 1.48 3.18.29z"
+                  />
+                </svg>
+                <span>
+                  <small>Coming soon on</small>
+                  <strong>Google Play</strong>
+                </span>
+              </a>
+            </div>
+            <p class="hero-note">Not on the stores yet — dummy links for now.</p>
+          </div>
+
+          <div class="hero-device reveal" aria-hidden="true">
+            <div class="phone phone-lg float">
+              <div class="phone-notch"></div>
+              <div class="phone-screen mock-library">
+                <div class="mock-status">9:41</div>
+                <div class="mock-title">Library</div>
+                <div class="continue-chip">
+                  <span>Continue</span>
+                  <strong>Batman #12</strong>
+                </div>
+                <div class="cover-grid">
+                  <div class="cover cover-batman-12">
+                    <span class="cover-issue">#12</span>
+                    <span class="cover-name">Batman</span>
+                  </div>
+                  <div class="cover cover-batman-13">
+                    <span class="cover-issue">#13</span>
+                    <span class="cover-name">Batman</span>
+                  </div>
+                  <div class="cover cover-year-one">
+                    <span class="cover-issue">Vol 1</span>
+                    <span class="cover-name">Year One</span>
+                  </div>
+                  <div class="cover cover-long-halloween">
+                    <span class="cover-issue">TPB</span>
+                    <span class="cover-name">Long Halloween</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="why" class="section why">
+        <div class="shell">
+          <header class="section-head reveal">
+            <p class="eyebrow">Why &amp; when</p>
+            <h2>Built for reading on your own device</h2>
+            <p>
+              Comics stay on your phone. Progress and preferences live in local
+              SQLite. Mark as read is always a conscious choice.
+            </p>
+          </header>
+          <div class="why-grid">
+            <article class="why-block reveal">
+              <h3>Why use it</h3>
+              <ul>
+                <li>Local CBZ / ZIP library — no uploads, no accounts</li>
+                <li>Cover grid with continue reading and filters</li>
+                <li>Reader controls: scrubber, zoom, dimmer, keep awake</li>
+                <li>Privacy by design — no analytics or cloud sync</li>
+              </ul>
+            </article>
+            <article class="why-block reveal">
+              <h3>When to use it</h3>
+              <ul>
+                <li>You already keep comics as CBZ files on your phone</li>
+                <li>You want offline reading with saved page progress</li>
+                <li>You prefer a personal shelf over storefront apps</li>
+                <li>Android folder pick brings a whole folder onto your shelf</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="section features">
+        <div class="shell">
+          <header class="section-head reveal">
+            <p class="eyebrow">Features</p>
+            <h2>Shelf, reader, and settings that stay local</h2>
+            <p>Everything below ships in the Expo app today.</p>
+          </header>
+          <ul class="feature-list">
+            <li class="reveal">
+              <h3>Cover library</h3>
+              <p>Each comic shows its first page as cover art in a clean grid.</p>
+            </li>
+            <li class="reveal">
+              <h3>Continue reading</h3>
+              <p>Jump straight back to the last unfinished issue.</p>
+            </li>
+            <li class="reveal">
+              <h3>Organize</h3>
+              <p>Filter unread, reading, finished, or favorites. Sort by recent, title, or progress.</p>
+            </li>
+            <li class="reveal">
+              <h3>Folder import</h3>
+              <p>On Android, select a folder of CBZ/ZIP files and fill the shelf.</p>
+            </li>
+            <li class="reveal">
+              <h3>Double-page spreads</h3>
+              <p>Wide pages can auto-split in portrait when you enable it.</p>
+            </li>
+            <li class="reveal">
+              <h3>Reader chrome</h3>
+              <p>Scrubber, pinch zoom, brightness dimmer, and dark controls.</p>
+            </li>
+            <li class="reveal">
+              <h3>Comfort</h3>
+              <p>Keep the screen awake while reading; pages stay fit and centered.</p>
+            </li>
+            <li class="reveal">
+              <h3>Themes &amp; storage</h3>
+              <p>Light, dark, or system. See library size and repair extracted pages.</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="screens" class="section screens">
+        <div class="shell">
+          <header class="section-head reveal">
+            <p class="eyebrow">Screens</p>
+            <h2>A quick tour of the app</h2>
+            <p>Demo UI with Batman titles — illustrative mockups, not device captures.</p>
+          </header>
+          <div class="screen-row">
+            <figure class="screen-item reveal">
+              <div class="phone">
+                <div class="phone-notch"></div>
+                <div class="phone-screen mock-library">
+                  <div class="mock-status">9:41</div>
+                  <div class="mock-title">Library</div>
+                  <div class="continue-chip">
+                    <span>Continue</span>
+                    <strong>Batman #12</strong>
+                  </div>
+                  <div class="cover-grid">
+                    <div class="cover cover-batman-12">
+                      <span class="cover-issue">#12</span>
+                      <span class="cover-name">Batman</span>
+                    </div>
+                    <div class="cover cover-batman-13">
+                      <span class="cover-issue">#13</span>
+                      <span class="cover-name">Batman</span>
+                    </div>
+                    <div class="cover cover-year-one">
+                      <span class="cover-issue">Vol 1</span>
+                      <span class="cover-name">Year One</span>
+                    </div>
+                    <div class="cover cover-long-halloween">
+                      <span class="cover-issue">TPB</span>
+                      <span class="cover-name">Long Halloween</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <figcaption>Library</figcaption>
+            </figure>
+
+            <figure class="screen-item reveal">
+              <div class="phone">
+                <div class="phone-notch"></div>
+                <div class="phone-screen mock-detail">
+                  <div class="mock-status">9:41</div>
+                  <div class="detail-cover cover-batman-12">
+                    <span class="cover-name">Batman</span>
+                    <span class="cover-issue">#12</span>
+                  </div>
+                  <div class="detail-meta">
+                    <h4>Batman #12</h4>
+                    <p>Series · Batman</p>
+                    <div class="progress-bar"><span style="width: 42%"></span></div>
+                    <p class="progress-label">Page 9 of 22</p>
+                    <div class="detail-actions">
+                      <span class="pill primary">Continue</span>
+                      <span class="pill">Favorite</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <figcaption>Comic detail</figcaption>
+            </figure>
+
+            <figure class="screen-item reveal">
+              <div class="phone">
+                <div class="phone-notch"></div>
+                <div class="phone-screen mock-reader">
+                  <div class="reader-page">
+                    <div class="reader-art">
+                      <span class="bat-symbol" aria-hidden="true"></span>
+                      <p>Gotham · Night</p>
+                    </div>
+                  </div>
+                  <div class="reader-chrome">
+                    <span>Batman #12</span>
+                    <span>9 / 22</span>
+                  </div>
+                  <div class="reader-scrubber"><span></span></div>
+                </div>
+              </div>
+              <figcaption>Reader</figcaption>
+            </figure>
+
+            <figure class="screen-item reveal">
+              <div class="phone">
+                <div class="phone-notch"></div>
+                <div class="phone-screen mock-settings">
+                  <div class="mock-status">9:41</div>
+                  <div class="mock-title">Settings</div>
+                  <ul class="settings-rows">
+                    <li>
+                      <span>Theme</span>
+                      <strong>System</strong>
+                    </li>
+                    <li>
+                      <span>Auto-split spreads</span>
+                      <strong>On</strong>
+                    </li>
+                    <li>
+                      <span>Library storage</span>
+                      <strong>128 MB</strong>
+                    </li>
+                    <li>
+                      <span>Formats</span>
+                      <strong>CBZ / ZIP</strong>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <figcaption>Settings</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="developer" class="section developer">
+        <div class="shell developer-inner reveal">
+          <p class="eyebrow">Developer</p>
+          <h2>MoShahan</h2>
+          <p class="role">Creator of Comic Reader</p>
+          <p class="bio">
+            Building a personal, local-only Expo / React Native comic reader —
+            CBZ on your phone, progress in SQLite, no accounts or telemetry.
+          </p>
+          <ul class="dev-links">
+            <li>
+              <a href="https://github.com/MoShahan" rel="noopener noreferrer" target="_blank"
+                >GitHub profile</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://github.com/MoShahan/comic-reader-app"
+                rel="noopener noreferrer"
+                target="_blank"
+                >comic-reader-app repository</a
+              >
+            </li>
+            <li>
+              <a href="mailto:mohamadshahan@gmail.com">mohamadshahan@gmail.com</a>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="get-app" class="section get-app">
+        <div class="shell get-app-inner reveal">
+          <p class="eyebrow">Get the app</p>
+          <h2>Coming soon to the stores</h2>
+          <p id="coming-soon">
+            Store listings are not live yet. These buttons are placeholders for
+            App Store and Google Play links.
+          </p>
+          <div class="store-row">
+            <a class="store-btn" href="#coming-soon">
+              <svg viewBox="0 0 24 24" aria-hidden="true" width="22" height="22">
+                <path
+                  fill="currentColor"
+                  d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"
+                />
+              </svg>
+              <span>
+                <small>Coming soon on</small>
+                <strong>App Store</strong>
+              </span>
+            </a>
+            <a class="store-btn" href="#coming-soon">
+              <svg viewBox="0 0 24 24" aria-hidden="true" width="22" height="22">
+                <path
+                  fill="currentColor"
+                  d="M3.18 23.71c.11.07.23.11.36.11.16 0 .31-.06.44-.17l11.1-6.84-2.52-2.52zm15.15-9.37 2.37-1.46c.48-.3.48-.98 0-1.27l-2.38-1.47-2.7 2.7zm-3.48-2.12L3.62.35C3.49.24 3.33.18 3.18.18c-.13 0-.25.04-.36.11l11.64 11.64zm-11.67 10.6c.2.13.45.14.66.01l.01-.01 11.1-6.84-2.52-2.52zM3.18.29 14.53 11.6 3.18 22.95C2.54 22.52 2 21.7 2 20.68V3.32C2 2.3 2.54 1.48 3.18.29z"
+                />
+              </svg>
+              <span>
+                <small>Coming soon on</small>
+                <strong>Google Play</strong>
+              </span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-inner">
+        <p>
+          © <span id="year"></span> MoShahan · Comic Reader ·
+          <a href="https://github.com/MoShahan/comic-reader-app" rel="noopener noreferrer" target="_blank"
+            >MIT License</a
+          >
+        </p>
+      </div>
+    </footer>
+
+    <script src="./script.js" defer></script>
+  </body>
+</html>
