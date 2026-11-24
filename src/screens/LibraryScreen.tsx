@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import {
   ActivityIndicator,
@@ -127,15 +127,6 @@ export function LibraryScreen() {
       </Pressable>
     ) : null;
 
-  const progressModal = (
-    <ImportProgressModal
-      visible={modalVisible}
-      progress={progress}
-      onCancel={cancel}
-      onRunInBackground={runInBackground}
-    />
-  );
-
   const header = useMemo(
     () => (
       <View>
@@ -165,26 +156,16 @@ export function LibraryScreen() {
     ],
   );
 
+  let body: ReactNode;
   if (loading && allComics.length === 0) {
-    return (
-      <View style={[styles.center, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
+    body = (
+      <View style={styles.center}>
         <ActivityIndicator color={colors.accent} />
       </View>
     );
-  }
-
-  if (allComics.length === 0) {
-    return (
-      <View
-        style={[
-          styles.center,
-          {
-            backgroundColor: colors.bg,
-            paddingTop: insets.top,
-            paddingHorizontal: spacing.lg,
-          },
-        ]}
-      >
+  } else if (allComics.length === 0) {
+    body = (
+      <View style={[styles.center, { paddingHorizontal: spacing.lg }]}>
         <Text style={[styles.brand, { color: colors.text, textAlign: 'center' }]}>
           Comic Vault
         </Text>
@@ -199,53 +180,63 @@ export function LibraryScreen() {
           <Text style={styles.primaryText}>Select folder</Text>
         </Pressable>
         {progressBanner}
-        {progressModal}
       </View>
+    );
+  } else {
+    body = (
+      <>
+        <FlatList
+          data={comics}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={{ gap }}
+          contentContainerStyle={{
+            paddingHorizontal: spacing.lg,
+            paddingBottom: insets.bottom + 88,
+          }}
+          ListHeaderComponent={header}
+          ListEmptyComponent={
+            <Text style={{ color: colors.muted, ...typography.body }}>
+              No comics match this filter.
+            </Text>
+          }
+          renderItem={({ item }) => (
+            <ComicCard
+              comic={item}
+              width={cardWidth}
+              onPress={onOpenComic}
+              onLongPress={onDeleteComic}
+            />
+          )}
+          initialNumToRender={6}
+          windowSize={7}
+          removeClippedSubviews
+        />
+
+        <Pressable
+          onPress={onSelectFolder}
+          style={[styles.fab, { backgroundColor: colors.accent, bottom: insets.bottom + 16 }]}
+        >
+          <Text style={styles.fabText}>{importing ? 'Adding…' : '＋ Folder'}</Text>
+        </Pressable>
+        {progressBanner}
+      </>
     );
   }
 
+  // Modal stays mounted across empty ↔ library switches so first-import progress doesn’t flicker.
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
-      <FlatList
-        data={comics}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        columnWrapperStyle={{ gap }}
-        contentContainerStyle={{
-          paddingHorizontal: spacing.lg,
-          paddingBottom: insets.bottom + 88,
-        }}
-        ListHeaderComponent={header}
-        ListEmptyComponent={
-          <Text style={{ color: colors.muted, ...typography.body }}>
-            No comics match this filter.
-          </Text>
-        }
-        renderItem={({ item }) => (
-          <ComicCard
-            comic={item}
-            width={cardWidth}
-            onPress={onOpenComic}
-            onLongPress={onDeleteComic}
-          />
-        )}
-        initialNumToRender={6}
-        windowSize={7}
-        removeClippedSubviews
+      {body}
+      <ImportProgressModal
+        visible={modalVisible}
+        progress={progress}
+        onCancel={cancel}
+        onRunInBackground={runInBackground}
       />
-
-      <Pressable
-        onPress={onSelectFolder}
-        style={[styles.fab, { backgroundColor: colors.accent, bottom: insets.bottom + 16 }]}
-      >
-        <Text style={styles.fabText}>{importing ? 'Adding…' : '＋ Folder'}</Text>
-      </Pressable>
-      {progressBanner}
-      {progressModal}
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
