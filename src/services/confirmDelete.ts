@@ -14,6 +14,19 @@ type ConfirmDeleteOptions = {
   onDeleted?: () => void;
 };
 
+function errorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message.trim()) return error.message.trim();
+  return fallback;
+}
+
+async function refreshLibraryBestEffort(): Promise<void> {
+  try {
+    await useLibraryStore.getState().refresh();
+  } catch {
+    // UI may still be stale; caller already surfaces the primary error.
+  }
+}
+
 async function finishDelete(
   comicId: string,
   result: DeleteResult,
@@ -21,7 +34,7 @@ async function finishDelete(
   titleWhenPartial: string,
 ) {
   useLibraryStore.getState().removeLocal(comicId);
-  await useLibraryStore.getState().refresh();
+  await refreshLibraryBestEffort();
   options.onDeleted?.();
   const message = buildDeleteUserMessage(result);
   if (message && result.appDeleted && !result.deviceDeleted && result.deviceDeleteError) {
@@ -44,8 +57,17 @@ export function confirmDeleteComic(
         text: 'From this app',
         onPress: () => {
           void (async () => {
-            const result = await deleteComicFromApp(comicId);
-            await finishDelete(comicId, result, options, 'Deleted from app');
+            try {
+              const result = await deleteComicFromApp(comicId);
+              await finishDelete(comicId, result, options, 'Deleted from app');
+            } catch (error) {
+              useLibraryStore.getState().removeLocal(comicId);
+              await refreshLibraryBestEffort();
+              Alert.alert(
+                'Delete failed',
+                errorMessage(error, 'Could not remove this comic from the app.'),
+              );
+            }
           })();
         },
       },
@@ -54,8 +76,20 @@ export function confirmDeleteComic(
         style: 'destructive',
         onPress: () => {
           void (async () => {
-            const result = await deleteComicFromDevice(comicId);
-            await finishDelete(comicId, result, options, 'Deleted from library');
+            try {
+              const result = await deleteComicFromDevice(comicId);
+              await finishDelete(comicId, result, options, 'Deleted from library');
+            } catch (error) {
+              useLibraryStore.getState().removeLocal(comicId);
+              await refreshLibraryBestEffort();
+              Alert.alert(
+                'Delete failed',
+                errorMessage(
+                  error,
+                  'Could not finish deleting this comic. Check the library and your files.',
+                ),
+              );
+            }
           })();
         },
       },
@@ -75,13 +109,21 @@ export function confirmClearLibrarySandbox(options: { onCleared?: () => void } =
         style: 'destructive',
         onPress: () => {
           void (async () => {
-            await clearLibrarySandbox();
-            await useLibraryStore.getState().refresh();
-            options.onCleared?.();
-            Alert.alert(
-              'Library cleared',
-              'App sandbox storage was freed. Select a folder again to re-add comics.',
-            );
+            try {
+              await clearLibrarySandbox();
+              await refreshLibraryBestEffort();
+              options.onCleared?.();
+              Alert.alert(
+                'Library cleared',
+                'App sandbox storage was freed. Select a folder again to re-add comics.',
+              );
+            } catch (error) {
+              await refreshLibraryBestEffort();
+              Alert.alert(
+                'Clear failed',
+                errorMessage(error, 'Could not clear the app library sandbox.'),
+              );
+            }
           })();
         },
       },
