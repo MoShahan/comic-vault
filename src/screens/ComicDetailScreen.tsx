@@ -36,6 +36,7 @@ export function ComicDetailScreen({ route, navigation }: Props) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const [comic, setComic] = useState<Comic | null>(null);
+  const [repairing, setRepairing] = useState(false);
 
   const load = useCallback(async () => {
     setComic(await getComicById(comicId));
@@ -89,7 +90,9 @@ export function ComicDetailScreen({ route, navigation }: Props) {
   };
 
   const onRepair = () => {
+    if (repairing) return;
     void (async () => {
+      setRepairing(true);
       try {
         const result = await repairComic(comic.id);
         Alert.alert('Repaired', `Found ${result.pageCount} pages.`);
@@ -97,6 +100,8 @@ export function ComicDetailScreen({ route, navigation }: Props) {
         await useLibraryStore.getState().refresh();
       } catch (e) {
         Alert.alert('Repair failed', e instanceof Error ? e.message : 'Unknown error');
+      } finally {
+        setRepairing(false);
       }
     })();
   };
@@ -234,11 +239,17 @@ export function ComicDetailScreen({ route, navigation }: Props) {
       <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <Text style={[styles.sectionLabel, { color: colors.muted }]}>Manage</Text>
         <Pressable
-          style={({ pressed }) => [styles.manageRow, { opacity: pressed ? 0.7 : 1 }]}
+          disabled={repairing}
+          style={({ pressed }) => [
+            styles.manageRow,
+            { opacity: repairing ? 0.45 : pressed ? 0.7 : 1 },
+          ]}
           onPress={onRepair}
         >
           <View style={styles.manageCopy}>
-            <Text style={[styles.rowLabel, { color: colors.text }]}>Repair pages</Text>
+            <Text style={[styles.rowLabel, { color: colors.text }]}>
+              {repairing ? 'Repairing…' : 'Repair pages'}
+            </Text>
             <Text style={[styles.rowDetail, { color: colors.muted }]}>
               Re-extract images if pages are missing or broken
             </Text>

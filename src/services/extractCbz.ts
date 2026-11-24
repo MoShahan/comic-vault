@@ -199,7 +199,12 @@ export async function extractCbzToDirectory(
 export async function listPageFiles(pagesDir: string): Promise<string[]> {
   const names = await LegacyFS.readDirectoryAsync(pagesDir);
   return names
-    .filter((n) => isImageEntry(n))
+    .filter((n) => {
+      const base = n.split('/').pop() ?? n;
+      // Skip extract staging temps left behind by a failed run.
+      if (base.startsWith('_raw_')) return false;
+      return isImageEntry(n);
+    })
     .sort(naturalCompare)
     .map((n) => `${pagesDir}${n}`);
 }
