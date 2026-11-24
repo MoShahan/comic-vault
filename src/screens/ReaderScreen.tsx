@@ -26,6 +26,11 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Reader'>;
 /** Keep current ± this many steps mounted so swipes/taps have a ready page. */
 const PAGE_WINDOW = 2;
 
+/**
+ * Comic pager UI. Heavy state lives in `useReaderState`; this screen wires
+ * PagerView, keep-awake, and chrome. Refs mirror step/zoom so gesture callbacks
+ * stay referentially stable across page changes (avoids rebuilding worklets).
+ */
 export function ReaderScreen({ route, navigation }: Props) {
   const { comicId, startFromBeginning } = route.params;
   const { width, height } = useWindowDimensions();
@@ -95,7 +100,9 @@ export function ReaderScreen({ route, navigation }: Props) {
     void markRead(!isReadRef.current);
   }, [markRead]);
 
-  // Animate programmatic page changes (tap zones / scrubber / vertical swipe).
+  // Sync React step → native pager. Skip the first paint (initialPage handles it)
+  // and skip when the step came from an onPageSelected swipe (already on that page).
+  // Adjacent steps animate; scrubber jumps use setPageWithoutAnimation.
   useEffect(() => {
     if (!positionReady) return;
 

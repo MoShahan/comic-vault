@@ -83,6 +83,7 @@ export default function App() {
     DMSans_700Bold,
   });
 
+  // Open SQLite, then sweep orphan comics/<id>/ folders left by killed imports.
   const loadDb = useCallback(() => {
     setDbError(null);
     setDbReady(false);

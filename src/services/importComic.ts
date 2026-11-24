@@ -183,6 +183,8 @@ async function importSources(
 ): Promise<FolderImportResult> {
   const imported: Comic[] = [];
   const failures: ImportFailure[] = [];
+  // One DB scan for the whole folder; mutate the set as we succeed so same-batch
+  // duplicates (two files with the same name) are skipped without another query.
   const knownKeys = await getImportedArchiveNameKeys();
   let skipped = 0;
 

@@ -14,6 +14,7 @@ import type { RootStackParamList, RootTabParamList } from '@/navigation/types';
 const Tab = createBottomTabNavigator<RootTabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+/** Library + Settings tabs. Detail/Reader sit on the outer stack above these. */
 function Tabs() {
   const { colors } = useTheme();
   return (
@@ -46,6 +47,7 @@ function Tabs() {
   );
 }
 
+/** Root stack: tabs for shelf/settings, plus modal-ish Detail and full-screen Reader. */
 export function RootNavigator() {
   const { colors, isDark } = useTheme();
   return (

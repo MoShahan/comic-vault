@@ -1,6 +1,9 @@
 import type { DeleteResult } from '@/types/comic';
 
-/** User-facing follow-up after delete; null means no extra alert needed. */
+/**
+ * User-facing follow-up after delete; `null` means no extra alert.
+ * Pure — safe to unit test without Alert / store.
+ */
 export function buildDeleteUserMessage(result: DeleteResult): string | null {
   if (!result.appDeleted) {
     return 'Comic not found';

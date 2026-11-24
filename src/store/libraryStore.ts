@@ -5,6 +5,12 @@ import { defaultSortDirection } from '@/library/selectors';
 
 import type { Comic, LibraryFilter, LibrarySort, SortDirection } from '@/types/comic';
 
+/**
+ * In-memory shelf + filter/sort for the Library UI.
+ * SQLite remains source of truth; `refresh` reloads from DB. Optimistic helpers
+ * (`upsertLocal` / `removeLocal` / `patchComic`) keep the grid snappy during
+ * import, delete, and reader progress without waiting on a full reload.
+ */
 type LibraryState = {
   comics: Comic[];
   loading: boolean;
@@ -32,6 +38,7 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
   setFilter: (filter) => set({ filter }),
   setSort: (sort) => {
     const current = get().sort;
+    // Tapping the active sort key toggles asc/desc instead of no-oping.
     if (current === sort) {
       set({
         sortDirection: get().sortDirection === 'asc' ? 'desc' : 'asc',
@@ -42,6 +49,8 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
   },
   toggleSortDirection: () => set({ sortDirection: get().sortDirection === 'asc' ? 'desc' : 'asc' }),
   refresh: async () => {
+    // Generation counter: overlapping refreshes (reader exit + import + delete)
+    // must not let an older response overwrite a newer one, or leave loading stuck.
     const generation = ++refreshGeneration;
     set({ loading: true });
     try {
@@ -54,6 +63,7 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     }
   },
   upsertLocal: (comic) => {
+    // Replace-or-prepend so a re-import of the same id does not duplicate rows.
     const comics = get().comics.filter((c) => c.id !== comic.id);
     set({ comics: [comic, ...comics] });
   },

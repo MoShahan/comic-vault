@@ -7,7 +7,10 @@ export function isImageEntry(name: string): boolean {
   return IMAGE_EXT.test(base);
 }
 
-/** Natural sort so page_2 comes before page_10 */
+/**
+ * Natural sort so `page_2` comes before `page_10`.
+ * Splits each string into digit/non-digit runs and compares runs pairwise.
+ */
 export function naturalCompare(a: string, b: string): number {
   const ax: (string | number)[] = [];
   const bx: (string | number)[] = [];

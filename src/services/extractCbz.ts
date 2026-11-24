@@ -84,6 +84,8 @@ export async function extractCbzToDirectory(
   const staged: StagedPage[] = [];
   let extractError: Error | null = null;
 
+  // Streaming unzip: each entry is handled as fflate emits it. We stage images to
+  // temp files, then rename into natural page order after the archive finishes.
   const unzipper = new Unzip((file) => {
     if (extractError) return;
 

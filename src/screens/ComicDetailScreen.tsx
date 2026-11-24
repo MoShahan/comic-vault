@@ -42,7 +42,7 @@ export function ComicDetailScreen({ route, navigation }: Props) {
   const [dbComic, setDbComic] = useState<Comic | null>(null);
   const [repairing, setRepairing] = useState(false);
 
-  // Prefer the store (patched live by the Reader); fall back to the last DB load.
+  // Prefer the Zustand row (Reader patches it live); fall back to last DB fetch.
   const comic = storeComic ?? dbComic;
 
   const load = useCallback(async () => {

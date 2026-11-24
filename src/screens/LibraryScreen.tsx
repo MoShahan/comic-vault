@@ -31,6 +31,11 @@ import { useTheme, spacing, typography, radii } from '@/theme';
 import type { RootStackParamList } from '@/navigation/types';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+/**
+ * Personal shelf: continue card, filter/sort grid, folder import.
+ * Import progress modal is mounted once on the screen root so empty→grid
+ * transitions (first comic arriving) do not remount/flicker the modal.
+ */
 export function LibraryScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -49,11 +54,11 @@ export function LibraryScreen() {
     progress,
   } = useComicImport();
 
-  // Subscribe to stable store slices only - derived lists must be memoized
+  // Subscribe to stable store slices only — derived lists must be memoized
   // (selectors that return new arrays break useSyncExternalStore / getSnapshot).
   const allComics = useLibraryStore((s) => s.comics);
-  // While Reader is open this tab stays mounted; keep a frozen shelf snapshot so
-  // progress patchComic ticks don't re-filter/re-sort the whole library.
+  // Tab stays mounted under the stack. While blurred (e.g. Reader open), freeze
+  // the shelf snapshot so progress patchComic ticks do not re-filter/re-sort.
   const [shelfComics, setShelfComics] = useState(allComics);
   useEffect(() => {
     if (isFocused) setShelfComics(allComics);

@@ -11,7 +11,10 @@ import type { Comic } from '@/types/comic';
 
 type Props = {
   comic: Comic;
-  /** Stable handler — card passes `comic.id` so parent memo stays effective. */
+  /**
+   * Parent should pass a stable callback (e.g. useCallback).
+   * The card invokes it with `comic.id` so `memo` is not defeated by inline lambdas.
+   */
   onPress: (comicId: string) => void;
   onLongPress?: (comicId: string, title: string) => void;
   width: number;

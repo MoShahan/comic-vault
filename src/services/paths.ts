@@ -1,5 +1,13 @@
 import * as FileSystem from 'expo-file-system/legacy';
 
+/**
+ * Sandbox path helpers for extracted comics.
+ *
+ * SQLite stores id-relative paths under `comics/` (survives iOS container UUID
+ * changes). Call sites resolve to absolute `file://` URIs at runtime via
+ * `resolveComicPath`. Deletes must go through `comicSandboxDir` so we never
+ * recursively remove anything outside a single `comics/<id>/` folder.
+ */
 const COMICS_MARKER = '/comics/';
 
 function withTrailingSlash(path: string): string {

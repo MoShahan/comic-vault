@@ -58,7 +58,8 @@ export function SettingsScreen() {
     setStorage({ label: stats.label, comicFolders: stats.comicFolders });
   }, []);
 
-  // Tab stays mounted — refresh whenever Settings is focused (not only first mount).
+  // Bottom tab stays mounted; refresh storage whenever this tab is focused again
+  // (import/delete may have changed sandbox size since last visit).
   useFocusEffect(
     useCallback(() => {
       void refreshStorage();

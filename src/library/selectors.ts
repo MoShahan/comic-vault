@@ -15,8 +15,9 @@ export function defaultSortDirection(sort: LibrarySort): SortDirection {
 }
 
 /**
- * 0–1 reading progress for 0-based `currentPage`.
- * Last page (`pageCount - 1`) is 100% — same formula for sort bars and detail.
+ * Shared 0–1 reading progress for 0-based `currentPage`.
+ * Last page (`pageCount - 1`) is 100%. Used by sort, cover bars, and detail so
+ * those UIs never disagree (do not use `currentPage / pageCount`).
  */
 export function readingProgressRatio(currentPage: number, pageCount: number): number {
   if (pageCount <= 0) return 0;

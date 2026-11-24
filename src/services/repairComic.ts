@@ -5,6 +5,7 @@ import { extractCbzToDirectory, listPageFiles } from '@/services/extractCbz';
 import { comicSandboxDir } from '@/services/paths';
 import { clearSpreadFlagsCache } from '@/services/spreadFlags';
 
+/** Prevents overlapping repairs on the same comic (detail double-tap). */
 const repairingIds = new Set<string>();
 
 async function finalizePagesDir(
@@ -20,9 +21,11 @@ async function finalizePagesDir(
 }
 
 /**
- * Re-extract pages from a stored archive copy if present, or rebuild page list from disk.
- * Archive extract goes to a temp folder and swaps in only after success so a failed
- * repair cannot wipe the existing pages.
+ * Re-extract pages from the stored `source.cbz` if present, else rebuild the
+ * page list from whatever is already on disk.
+ *
+ * Extract always lands in `pages_tmp/` and only swaps over `pages/` after
+ * success — a failed repair must not delete the user's readable pages.
  */
 export async function repairComic(id: string): Promise<{ pageCount: number }> {
   if (repairingIds.has(id)) {

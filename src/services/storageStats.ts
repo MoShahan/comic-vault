@@ -6,6 +6,7 @@ import { comicsRoot } from '@/services/paths';
 /** Cap bridge parallelism so huge page trees don’t flood native I/O. */
 const SIZE_CONCURRENCY = 8;
 
+/** Run async work over `items` with at most `concurrency` in flight. */
 async function mapPool<T, R>(
   items: readonly T[],
   concurrency: number,

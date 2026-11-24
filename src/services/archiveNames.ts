@@ -1,6 +1,9 @@
 /**
  * Archive filename helpers for import + duplicate detection.
- * Always normalize in JS (not SQLite lower()) so Unicode case-folding stays consistent.
+ *
+ * Always normalize in JS (not SQLite `lower()`) so Unicode case-folding stays
+ * consistent across insert and lookup. Duplicate detection is basename-only
+ * (same filename from another folder counts as already imported).
  */
 
 /** decodeURIComponent that never throws on malformed `%` sequences. */

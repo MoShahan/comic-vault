@@ -17,7 +17,11 @@ type Props = {
 };
 
 /**
- * Owns dimmer state so slider drags re-render only chrome, not mounted ReaderPages.
+ * Reader overlay + screen dimmer, isolated from the page pager.
+ *
+ * Why a separate component: dimmer `onValueChange` fires every drag tick. If that
+ * state lived on ReaderScreen, every tick would re-render mounted ReaderPages and
+ * rebuild gestures. Keeping dimmer here confines those updates to chrome only.
  */
 function ReaderChromeComponent({
   visible,

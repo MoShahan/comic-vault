@@ -22,8 +22,11 @@ function errorMessage(error: unknown, fallback: string): string {
 }
 
 /**
- * Confirm dialogs + library store updates for delete / clear-sandbox.
- * Keeps Alert and Zustand out of `services/`.
+ * UI layer for destructive library actions.
+ *
+ * Why a hook (not a service): `Alert` and Zustand belong with screens/hooks.
+ * Pure delete I/O stays in `services/deleteComic`; this wires confirms → calls →
+ * local store cleanup / refresh → follow-up alerts.
  */
 export function useConfirmDelete() {
   const removeLocal = useLibraryStore((s) => s.removeLocal);

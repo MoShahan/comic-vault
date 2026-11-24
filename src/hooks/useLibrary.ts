@@ -16,6 +16,11 @@ const EMPTY_IMPORT_RESULT: FolderImportResult = {
   summaryMessage: '',
 };
 
+/**
+ * Owns folder-import UI state (progress modal, cancel, in-flight guard).
+ * Kept out of screens so Library can stay mostly presentational, and so a
+ * double-tap cannot start two imports before React re-renders `importing`.
+ */
 export function useComicImport() {
   const refresh = useLibraryStore((s) => s.refresh);
   const upsertLocal = useLibraryStore((s) => s.upsertLocal);
@@ -92,6 +97,11 @@ export function useComicImport() {
   };
 }
 
+/**
+ * Thin shelf subscription + initial DB refresh for Library.
+ * Filter/sort live in the store so they survive tab switches; this hook just
+ * exposes them and kicks `refresh()` once on mount.
+ */
 export function useLibrary() {
   const loading = useLibraryStore((s) => s.loading);
   const filter = useLibraryStore((s) => s.filter);

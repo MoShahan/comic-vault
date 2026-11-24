@@ -29,6 +29,7 @@ function rowArchiveKey(row: Pick<ComicRow, 'sourceFileName' | 'sourceUri'>): str
   return '';
 }
 
+/** Map a DB row to the app model; paths are resolved to current documentDirectory. */
 function mapRow(row: ComicRow): Comic {
   return {
     id: row.id,
@@ -36,7 +37,7 @@ function mapRow(row: ComicRow): Comic {
     series: row.series,
     sourceUri: row.sourceUri,
     sourceFileName: row.sourceFileName,
-    // Rebase onto current documentDirectory (legacy rows may store absolute URIs).
+    // Legacy rows may still store absolute URIs — resolveComicPath rebases them.
     coverPath: resolveComicPath(row.coverPath),
     pagesDir: resolveComicPath(row.pagesDir),
     pageCount: row.pageCount,
@@ -64,6 +65,7 @@ export async function insertComic(comic: Comic): Promise<void> {
       comic.series,
       comic.sourceUri,
       comic.sourceFileName,
+      // Persist id-relative paths only (see paths.ts).
       toStoredComicPath(comic.coverPath),
       toStoredComicPath(comic.pagesDir),
       comic.pageCount,

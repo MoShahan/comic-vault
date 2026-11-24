@@ -5,6 +5,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { isSpreadImage } from '@/library/selectors';
 import { comicRootFromPagesDir } from '@/services/paths';
 
+/** Cap Image.getSize concurrency — probing every page at once OOMs large issues. */
 const PROBE_CONCURRENCY = 4;
 
 type SpreadFlagsCache = {

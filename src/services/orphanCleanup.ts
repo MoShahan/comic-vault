@@ -3,7 +3,10 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { getAllComicIds } from '@/db/comicRepository';
 import { comicsRoot } from '@/services/paths';
 
-/** Disk folder names under `comics/` with no matching library row. */
+/**
+ * Pure helper for tests: disk folder names under `comics/` with no library row.
+ * Used by startup purge after a process kill mid-import left files without metadata.
+ */
 export function orphanFolderNames(diskNames: string[], knownIds: ReadonlySet<string>): string[] {
   return diskNames.filter((name) => name.length > 0 && !knownIds.has(name));
 }

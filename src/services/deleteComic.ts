@@ -6,7 +6,8 @@ import { comicSandboxDir, comicsRoot } from '@/services/paths';
 import type { DeleteResult } from '@/types/comic';
 
 async function deleteSandboxFolder(comicId: string): Promise<void> {
-  // Derive from id + guard — never trust a string-replaced pagesDir root.
+  // Path comes from id via comicSandboxDir (asserts under comics/<id>/).
+  // Never delete using a string-replaced pagesDir — a bad suffix could escape.
   const path = comicSandboxDir(comicId);
   await FileSystem.deleteAsync(path, { idempotent: true });
 }

@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 
+/** Single shared open promise so concurrent getDb() callers share one migration. */
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
 async function openAndMigrate(): Promise<SQLite.SQLiteDatabase> {
@@ -32,6 +33,7 @@ async function openAndMigrate(): Promise<SQLite.SQLiteDatabase> {
         );
       `);
 
+  // Lightweight forward migrations for installs that predate new columns.
   const comicCols = await db.getAllAsync<{ name: string }>('PRAGMA table_info(comics)');
   if (!comicCols.some((col) => col.name === 'sourceFileName')) {
     await db.execAsync('ALTER TABLE comics ADD COLUMN sourceFileName TEXT');
@@ -40,10 +42,11 @@ async function openAndMigrate(): Promise<SQLite.SQLiteDatabase> {
   return db;
 }
 
+/** Opens (and migrates) the library DB; safe to call from multiple boot paths. */
 export async function getDb(): Promise<SQLite.SQLiteDatabase> {
   if (!dbPromise) {
     dbPromise = openAndMigrate().catch((error) => {
-      // Allow a later getDb() / Retry to try again.
+      // Clear so a later getDb() / Retry can try again after a failed open.
       dbPromise = null;
       throw error;
     });

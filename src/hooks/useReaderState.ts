@@ -10,6 +10,7 @@ import { useTheme } from '@/theme';
 
 import type { Comic, SpreadHalf } from '@/types/comic';
 
+/** One pager item: a full page, or one half of an auto-split double-page spread. */
 export type ReaderStep = {
   pageIndex: number;
   half: SpreadHalf;
@@ -17,6 +18,11 @@ export type ReaderStep = {
   isSpread: boolean;
 };
 
+/**
+ * Reader session state: load pages, build spread steps, keep scroll position
+ * stable across rotation/spread rebuilds, and debounce progress to SQLite.
+ * Screens stay presentational; all of that orchestration lives here.
+ */
 export function useReaderState(
   comicId: string,
   options: { startFromBeginning?: boolean } = {},
@@ -36,7 +42,9 @@ export function useReaderState(
   const [loadError, setLoadError] = useState<string | null>(null);
   const [chromeVisible, setChromeVisible] = useState(true);
   const [zoomed, setZoomed] = useState(false);
+  /** Debounced SQLite write; cleared/flushed on unmount so the last page is kept. */
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Authoritative in-session position (survives step rebuilds better than React state alone). */
   const latestProgress = useRef<{ pageIndex: number; half: SpreadHalf } | null>(null);
   /** "Read from start" must run once per open — not again when steps rebuild. */
   const appliedStartFromBeginning = useRef(false);
@@ -91,13 +99,14 @@ export function useReaderState(
     void load();
   }, [load]);
 
+  // Portrait + auto-split → one wide page becomes two pager steps (left then right).
+  // Landscape (or split off) keeps a single full-page step so the whole spread shows.
   const steps: ReaderStep[] = useMemo(() => {
     if (!comic) return [];
     const result: ReaderStep[] = [];
     pages.forEach((uri, pageIndex) => {
       const isSpread = spreadFlags[pageIndex] === true;
       if (isSpread && isPortrait && settings.autoSplitSpreads) {
-        // Always LTR spread order: left half, then right half
         result.push({ pageIndex, half: 'left', uri, isSpread: true });
         result.push({ pageIndex, half: 'right', uri, isSpread: true });
       } else {
@@ -180,6 +189,7 @@ export function useReaderState(
     };
   }, [flushProgress, refreshLibrary]);
 
+  // Debounce DB writes while the user scrubs/swipes; unmount still flushes via flushProgress.
   const persistProgress = useCallback(
     (pageIndex: number, half: SpreadHalf) => {
       latestProgress.current = { pageIndex, half };

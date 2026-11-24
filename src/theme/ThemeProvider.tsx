@@ -27,6 +27,7 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
+/** Loads persisted theme/settings once, then exposes colors + patch helpers app-wide. */
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const system = useColorScheme();
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -77,6 +78,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
+/** Read theme tokens / settings from the nearest ThemeProvider (throws if missing). */
 export function useTheme() {
   const ctx = useContext(ThemeContext);
   if (!ctx) {

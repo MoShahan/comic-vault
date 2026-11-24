@@ -38,6 +38,7 @@ const VERTICAL_VELOCITY = 450;
 
 type NaturalSize = { width: number; height: number };
 
+/** Keep pan inside the scaled page bounds (worklet — runs on the UI thread). */
 function clampZoomPan(
   nextTx: number,
   nextTy: number,
@@ -54,6 +55,11 @@ function clampZoomPan(
   };
 }
 
+/**
+ * Single page (or spread half) canvas: pinch/pan zoom, edge taps, vertical swipe
+ * to turn pages. Parent should pass stable callbacks; zoomed pan disables the
+ * pager so horizontal pans do not change pages.
+ */
 export function ReaderPage({
   uri,
   half,
@@ -238,6 +244,8 @@ export function ReaderPage({
       if (e.x >= edgeLeft && e.x <= edgeRight) scheduleOnRN(onTapCenter);
     });
 
+  // Pinch/pan/vertical/edge run together; center taps are exclusive so a double
+  // tap does not also fire chrome toggle.
   const composed = Gesture.Simultaneous(
     pinch,
     zoomPan,
