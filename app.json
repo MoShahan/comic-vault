@@ -6,11 +6,6 @@
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0F1115"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.personal.comicvault"
@@ -28,7 +23,15 @@
     },
     "plugins": [
       "expo-sqlite",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#0F1115"
+        }
+      ]
     ],
     "extra": {
       "eas": {
