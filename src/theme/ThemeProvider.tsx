@@ -33,10 +33,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    void getSettings().then((next) => {
-      setSettings(next);
-      setReady(true);
-    });
+    void getSettings()
+      .then((next) => {
+        setSettings(next);
+      })
+      .catch(() => {
+        // Keep DEFAULT_SETTINGS so the app can still render.
+      })
+      .finally(() => {
+        setReady(true);
+      });
   }, []);
 
   const setMode = useCallback(async (mode: ThemeMode) => {

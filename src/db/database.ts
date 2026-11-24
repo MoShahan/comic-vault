@@ -2,11 +2,9 @@ import * as SQLite from 'expo-sqlite';
 
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
-export async function getDb(): Promise<SQLite.SQLiteDatabase> {
-  if (!dbPromise) {
-    dbPromise = (async () => {
-      const db = await SQLite.openDatabaseAsync('comicvault.db');
-      await db.execAsync(`
+async function openAndMigrate(): Promise<SQLite.SQLiteDatabase> {
+  const db = await SQLite.openDatabaseAsync('comicvault.db');
+  await db.execAsync(`
         PRAGMA journal_mode = WAL;
         PRAGMA foreign_keys = ON;
 
@@ -35,13 +33,21 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
         );
       `);
 
-      const comicCols = await db.getAllAsync<{ name: string }>('PRAGMA table_info(comics)');
-      if (!comicCols.some((col) => col.name === 'sourceFileName')) {
-        await db.execAsync('ALTER TABLE comics ADD COLUMN sourceFileName TEXT');
-      }
+  const comicCols = await db.getAllAsync<{ name: string }>('PRAGMA table_info(comics)');
+  if (!comicCols.some((col) => col.name === 'sourceFileName')) {
+    await db.execAsync('ALTER TABLE comics ADD COLUMN sourceFileName TEXT');
+  }
 
-      return db;
-    })();
+  return db;
+}
+
+export async function getDb(): Promise<SQLite.SQLiteDatabase> {
+  if (!dbPromise) {
+    dbPromise = openAndMigrate().catch((error) => {
+      // Allow a later getDb() / Retry to try again.
+      dbPromise = null;
+      throw error;
+    });
   }
   return dbPromise;
 }

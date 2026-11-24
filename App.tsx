@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
 import { useFonts, Fraunces_600SemiBold, Fraunces_700Bold } from '@expo-google-fonts/fraunces';
@@ -38,9 +38,43 @@ function NavigationRoot() {
   );
 }
 
+function BootError({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: darkColors.bg,
+        paddingHorizontal: 32,
+        gap: 16,
+      }}
+    >
+      <Text style={{ color: darkColors.text, fontSize: 18, fontWeight: '600', textAlign: 'center' }}>
+        Couldn’t start Comic Vault
+      </Text>
+      <Text style={{ color: darkColors.muted, textAlign: 'center', lineHeight: 22 }}>{message}</Text>
+      <Pressable
+        onPress={onRetry}
+        style={{
+          marginTop: 8,
+          backgroundColor: darkColors.accent,
+          paddingHorizontal: 20,
+          paddingVertical: 12,
+          borderRadius: 12,
+        }}
+      >
+        <Text style={{ color: '#14171C', fontWeight: '700' }}>Try again</Text>
+      </Pressable>
+    </View>
+  );
+}
+
 export default function App() {
   const [dbReady, setDbReady] = useState(false);
-  const [fontsLoaded] = useFonts({
+  const [dbError, setDbError] = useState<string | null>(null);
+  const [bootAttempt, setBootAttempt] = useState(0);
+  const [fontsLoaded, fontError] = useFonts({
     Fraunces_600SemiBold,
     Fraunces_700Bold,
     DMSans_400Regular,
@@ -48,11 +82,40 @@ export default function App() {
     DMSans_700Bold,
   });
 
-  useEffect(() => {
-    void getDb().then(() => setDbReady(true));
+  const loadDb = useCallback(() => {
+    setDbError(null);
+    setDbReady(false);
+    void getDb()
+      .then(() => setDbReady(true))
+      .catch((error: unknown) => {
+        const message =
+          error instanceof Error && error.message.trim()
+            ? error.message.trim()
+            : 'Could not open the local library database.';
+        setDbError(message);
+      });
   }, []);
 
-  if (!fontsLoaded || !dbReady) {
+  useEffect(() => {
+    loadDb();
+  }, [bootAttempt, loadDb]);
+
+  // Font download failures used to leave fontsLoaded false forever. Continue with
+  // system fonts rather than hanging on the splash spinner.
+  const fontsReady = fontsLoaded || fontError != null;
+
+  if (dbError) {
+    return (
+      <BootError
+        message={dbError}
+        onRetry={() => {
+          setBootAttempt((n) => n + 1);
+        }}
+      />
+    );
+  }
+
+  if (!fontsReady || !dbReady) {
     return (
       <View
         style={{
