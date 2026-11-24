@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { Image as RNImage, useWindowDimensions } from 'react-native';
 
@@ -121,6 +121,16 @@ export function useReaderState(
     setPositionReady(true);
   }, [comic?.id, steps.length, startFromBeginning, comicId, patchComic]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Orientation / spread rebuild can shrink `steps` before the position effect remaps.
+  // Clamp synchronously so the next paint never reads steps[stepIndex] as undefined.
+  const safeStepIndex =
+    steps.length === 0 ? 0 : Math.min(Math.max(0, stepIndex), steps.length - 1);
+
+  useLayoutEffect(() => {
+    if (steps.length === 0 || stepIndex === safeStepIndex) return;
+    setStepIndex(safeStepIndex);
+  }, [steps.length, stepIndex, safeStepIndex]);
+
   const flushProgress = useCallback(async () => {
     if (saveTimer.current) {
       clearTimeout(saveTimer.current);
@@ -193,7 +203,7 @@ export function useReaderState(
   return {
     comic,
     steps,
-    stepIndex,
+    stepIndex: safeStepIndex,
     positionReady,
     goToStep,
     chromeVisible,

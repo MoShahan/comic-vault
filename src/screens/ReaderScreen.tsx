@@ -110,7 +110,8 @@ export function ReaderScreen({ route, navigation }: Props) {
     );
   }
 
-  const pageLabel = `Page ${steps[stepIndex].pageIndex + 1} / ${comic.pageCount}`;
+  const activeStep = steps[stepIndex] ?? steps[steps.length - 1];
+  const pageLabel = `Page ${activeStep.pageIndex + 1} / ${comic.pageCount}`;
 
   return (
     <View style={styles.root}>
