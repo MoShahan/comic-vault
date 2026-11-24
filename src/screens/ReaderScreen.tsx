@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 
 import {
   ActivityIndicator,
@@ -14,7 +14,7 @@ import { StatusBar } from 'expo-status-bar';
 import PagerView from 'react-native-pager-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ReaderOverlay } from '@/components/ReaderOverlay';
+import { ReaderChrome } from '@/components/ReaderChrome';
 import { ReaderPage } from '@/components/ReaderPage';
 import { useReaderState } from '@/hooks/useReaderState';
 
@@ -46,12 +46,20 @@ export function ReaderScreen({ route, navigation }: Props) {
     goToStep,
     chromeVisible,
     toggleChrome,
-    dimmer,
-    setDimmer,
     zoomed,
     setZoomed,
     markRead,
   } = reader;
+
+  const stepIndexRef = useRef(stepIndex);
+  const zoomedRef = useRef(zoomed);
+  const isReadRef = useRef(comic?.isRead ?? false);
+
+  useLayoutEffect(() => {
+    stepIndexRef.current = stepIndex;
+    zoomedRef.current = zoomed;
+    isReadRef.current = comic?.isRead ?? false;
+  }, [stepIndex, zoomed, comic?.isRead]);
 
   useEffect(() => {
     void activateKeepAwakeAsync('reader');
@@ -60,24 +68,32 @@ export function ReaderScreen({ route, navigation }: Props) {
     };
   }, []);
 
+  // Stable across page changes so ReaderPage gestures are not rebuilt every step.
   const goNext = useCallback(() => {
-    goToStep(stepIndex + 1);
-  }, [goToStep, stepIndex]);
+    goToStep(stepIndexRef.current + 1);
+  }, [goToStep]);
 
   const goPrev = useCallback(() => {
-    goToStep(stepIndex - 1);
-  }, [goToStep, stepIndex]);
+    goToStep(stepIndexRef.current - 1);
+  }, [goToStep]);
 
-  // LTR taps: left = previous, right = next
   const onTapLeft = useCallback(() => {
-    if (zoomed) return;
+    if (zoomedRef.current) return;
     goPrev();
-  }, [zoomed, goPrev]);
+  }, [goPrev]);
 
   const onTapRight = useCallback(() => {
-    if (zoomed) return;
+    if (zoomedRef.current) return;
     goNext();
-  }, [zoomed, goNext]);
+  }, [goNext]);
+
+  const onBack = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
+  const onToggleRead = useCallback(() => {
+    void markRead(!isReadRef.current);
+  }, [markRead]);
 
   // Animate programmatic page changes (tap zones / scrubber / vertical swipe).
   useEffect(() => {
@@ -111,11 +127,7 @@ export function ReaderScreen({ route, navigation }: Props) {
         <StatusBar style="light" />
         <Text style={styles.errorTitle}>Can’t open reader</Text>
         <Text style={styles.loadingText}>{loadError}</Text>
-        <Pressable
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-          hitSlop={12}
-        >
+        <Pressable onPress={onBack} style={styles.backButton} hitSlop={12}>
           <Text style={styles.backButtonText}>Back</Text>
         </Pressable>
       </View>
@@ -147,7 +159,7 @@ export function ReaderScreen({ route, navigation }: Props) {
         overdrag
         onPageSelected={(e) => {
           const index = e.nativeEvent.position;
-          if (index !== stepIndex) {
+          if (index !== stepIndexRef.current) {
             skipProgrammaticScroll.current = true;
             goToStep(index);
           }
@@ -174,22 +186,16 @@ export function ReaderScreen({ route, navigation }: Props) {
         ))}
       </PagerView>
 
-      <View
-        pointerEvents="none"
-        style={[styles.dimmer, { opacity: dimmer, backgroundColor: '#000' }]}
-      />
-
-      <ReaderOverlay
+      <ReaderChrome
         visible={chromeVisible}
-        comic={comic}
+        title={comic.title}
+        isRead={comic.isRead}
         pageLabel={pageLabel}
         stepIndex={stepIndex}
         stepCount={steps.length}
-        dimmer={dimmer}
-        onBack={() => navigation.goBack()}
-        onToggleRead={() => void markRead(!comic.isRead)}
-        onScrub={(index) => goToStep(index)}
-        onDimmer={setDimmer}
+        onBack={onBack}
+        onToggleRead={onToggleRead}
+        onScrub={goToStep}
       />
     </View>
   );
@@ -198,7 +204,6 @@ export function ReaderScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#000' },
   pager: { flex: 1 },
-  dimmer: { ...StyleSheet.absoluteFill },
   loading: {
     flex: 1,
     backgroundColor: '#000',

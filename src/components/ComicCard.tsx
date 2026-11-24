@@ -11,8 +11,9 @@ import type { Comic } from '@/types/comic';
 
 type Props = {
   comic: Comic;
-  onPress: () => void;
-  onLongPress?: () => void;
+  /** Stable handler — card passes `comic.id` so parent memo stays effective. */
+  onPress: (comicId: string) => void;
+  onLongPress?: (comicId: string, title: string) => void;
   width: number;
 };
 
@@ -22,8 +23,8 @@ function ComicCardComponent({ comic, onPress, onLongPress, width }: Props) {
 
   return (
     <Pressable
-      onPress={onPress}
-      onLongPress={onLongPress}
+      onPress={() => onPress(comic.id)}
+      onLongPress={onLongPress ? () => onLongPress(comic.id, comic.title) : undefined}
       style={({ pressed }) => [
         styles.card,
         { width, backgroundColor: colors.surface, opacity: pressed ? 0.92 : 1 },

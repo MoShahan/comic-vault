@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   ActivityIndicator,
@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ComicCard } from '@/components/ComicCard';
@@ -36,6 +36,7 @@ export function LibraryScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const isFocused = useIsFocused();
   const { loading, filter, sort, sortDirection, setFilter, setSort } = useLibrary();
   const {
     selectFolder,
@@ -50,14 +51,37 @@ export function LibraryScreen() {
   // Subscribe to stable store slices only - derived lists must be memoized
   // (selectors that return new arrays break useSyncExternalStore / getSnapshot).
   const allComics = useLibraryStore((s) => s.comics);
+  // While Reader is open this tab stays mounted; keep a frozen shelf snapshot so
+  // progress patchComic ticks don't re-filter/re-sort the whole library.
+  const [shelfComics, setShelfComics] = useState(allComics);
+  useEffect(() => {
+    if (isFocused) setShelfComics(allComics);
+  }, [isFocused, allComics]);
+
   const comics = useMemo(
-    () => pickVisibleComics(allComics, filter, sort, sortDirection),
-    [allComics, filter, sort, sortDirection],
+    () => pickVisibleComics(shelfComics, filter, sort, sortDirection),
+    [shelfComics, filter, sort, sortDirection],
   );
-  const continueComic = useMemo(() => pickContinueComic(allComics), [allComics]);
+  const continueComic = useMemo(() => pickContinueComic(shelfComics), [shelfComics]);
 
   const gap = spacing.md;
   const cardWidth = (width - spacing.lg * 2 - gap) / 2;
+
+  const onOpenComic = useCallback(
+    (comicId: string) => {
+      navigation.navigate('ComicDetail', { comicId });
+    },
+    [navigation],
+  );
+
+  const onDeleteComic = useCallback((comicId: string, title: string) => {
+    confirmDeleteComic(comicId, title);
+  }, []);
+
+  const onContinue = useCallback(() => {
+    const id = continueComic?.id;
+    if (id) navigation.navigate('Reader', { comicId: id });
+  }, [continueComic?.id, navigation]);
 
   const onSelectFolder = useCallback(() => {
     if (importing) {
@@ -114,12 +138,7 @@ export function LibraryScreen() {
         <Text style={[styles.brand, { color: colors.text }]}>Comic Vault</Text>
         <Text style={[styles.sub, { color: colors.muted }]}>Your personal shelf</Text>
 
-        {continueComic ? (
-          <ContinueCard
-            comic={continueComic}
-            onPress={() => navigation.navigate('Reader', { comicId: continueComic.id })}
-          />
-        ) : null}
+        {continueComic ? <ContinueCard comic={continueComic} onPress={onContinue} /> : null}
 
         <LibraryControls
           filter={filter}
@@ -130,7 +149,16 @@ export function LibraryScreen() {
         />
       </View>
     ),
-    [colors, continueComic, filter, sort, sortDirection, setFilter, setSort, navigation],
+    [
+      colors,
+      continueComic,
+      filter,
+      sort,
+      sortDirection,
+      setFilter,
+      setSort,
+      onContinue,
+    ],
   );
 
   if (loading && allComics.length === 0) {
@@ -193,8 +221,8 @@ export function LibraryScreen() {
           <ComicCard
             comic={item}
             width={cardWidth}
-            onPress={() => navigation.navigate('ComicDetail', { comicId: item.id })}
-            onLongPress={() => confirmDeleteComic(item.id, item.title)}
+            onPress={onOpenComic}
+            onLongPress={onDeleteComic}
           />
         )}
         initialNumToRender={6}

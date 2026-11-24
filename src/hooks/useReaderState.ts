@@ -35,7 +35,6 @@ export function useReaderState(
   const [positionReady, setPositionReady] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [chromeVisible, setChromeVisible] = useState(true);
-  const [dimmer, setDimmer] = useState(0);
   const [zoomed, setZoomed] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestProgress = useRef<{ pageIndex: number; half: SpreadHalf } | null>(null);
@@ -238,8 +237,6 @@ export function useReaderState(
     goToStep,
     chromeVisible,
     toggleChrome,
-    dimmer,
-    setDimmer,
     zoomed,
     setZoomed,
     markRead,

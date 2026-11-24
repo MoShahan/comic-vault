@@ -7,11 +7,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { spacing, typography } from '@/theme';
 
-import type { Comic } from '@/types/comic';
-
 type Props = {
   visible: boolean;
-  comic: Comic;
+  title: string;
+  isRead: boolean;
   pageLabel: string;
   stepIndex: number;
   stepCount: number;
@@ -24,7 +23,8 @@ type Props = {
 
 function ReaderOverlayComponent({
   visible,
-  comic,
+  title,
+  isRead,
   pageLabel,
   stepIndex,
   stepCount,
@@ -44,10 +44,10 @@ function ReaderOverlayComponent({
           <Text style={styles.chipText}>Back</Text>
         </Pressable>
         <Text style={styles.title} numberOfLines={1}>
-          {comic.title}
+          {title}
         </Text>
         <Pressable onPress={onToggleRead} hitSlop={12} style={styles.chip}>
-          <Text style={styles.chipText}>{comic.isRead ? 'Unread' : 'Mark read'}</Text>
+          <Text style={styles.chipText}>{isRead ? 'Unread' : 'Mark read'}</Text>
         </Pressable>
       </View>
 
