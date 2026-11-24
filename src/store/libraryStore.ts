@@ -20,6 +20,9 @@ type LibraryState = {
   patchComic: (id: string, patch: Partial<Comic>) => void;
 };
 
+/** Ignores stale overlapping refresh results (Reader unmount, import, delete). */
+let refreshGeneration = 0;
+
 export const useLibraryStore = create<LibraryState>((set, get) => ({
   comics: [],
   loading: true,
@@ -39,9 +42,16 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
   },
   toggleSortDirection: () => set({ sortDirection: get().sortDirection === 'asc' ? 'desc' : 'asc' }),
   refresh: async () => {
+    const generation = ++refreshGeneration;
     set({ loading: true });
-    const comics = await getAllComics();
-    set({ comics, loading: false });
+    try {
+      const comics = await getAllComics();
+      if (generation !== refreshGeneration) return;
+      set({ comics, loading: false });
+    } catch {
+      if (generation !== refreshGeneration) return;
+      set({ loading: false });
+    }
   },
   upsertLocal: (comic) => {
     const comics = get().comics.filter((c) => c.id !== comic.id);
