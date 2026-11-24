@@ -33,6 +33,7 @@ export function useReaderState(
   const [spreadFlags, setSpreadFlags] = useState<boolean[]>([]);
   const [stepIndex, setStepIndex] = useState(0);
   const [positionReady, setPositionReady] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [chromeVisible, setChromeVisible] = useState(true);
   const [dimmer, setDimmer] = useState(0);
   const [zoomed, setZoomed] = useState(false);
@@ -42,27 +43,49 @@ export function useReaderState(
   const appliedStartFromBeginning = useRef(false);
 
   const load = useCallback(async () => {
-    const row = await getComicById(comicId);
-    if (!row) {
+    setLoadError(null);
+    setPositionReady(false);
+    try {
+      const row = await getComicById(comicId);
+      if (!row) {
+        setComic(null);
+        setPages([]);
+        setSpreadFlags([]);
+        setLoadError('Comic not found.');
+        return;
+      }
+
+      const files = await listPageFiles(row.pagesDir);
+      if (files.length === 0) {
+        setComic(row);
+        setPages([]);
+        setSpreadFlags([]);
+        setLoadError('No pages found. Try Repair from the comic details.');
+        return;
+      }
+
+      let flags: boolean[];
+      if (!settings.autoSplitSpreads) {
+        flags = files.map(() => false);
+      } else {
+        // Cached after first probe; batched concurrency avoids decoding every page at once.
+        flags = await loadOrProbeSpreadFlags(row.pagesDir, files);
+      }
+
+      // Set comic + pages + flags together so steps never flash unsplit then jump.
+      setComic(row);
+      setPages(files);
+      setSpreadFlags(flags);
+    } catch (error) {
       setComic(null);
       setPages([]);
       setSpreadFlags([]);
-      return;
+      const message =
+        error instanceof Error && error.message.trim()
+          ? error.message.trim()
+          : 'Could not load this comic.';
+      setLoadError(message);
     }
-
-    const files = await listPageFiles(row.pagesDir);
-    let flags: boolean[];
-    if (!settings.autoSplitSpreads || files.length === 0) {
-      flags = files.map(() => false);
-    } else {
-      // Cached after first probe; batched concurrency avoids decoding every page at once.
-      flags = await loadOrProbeSpreadFlags(row.pagesDir, files);
-    }
-
-    // Set comic + pages + flags together so steps never flash unsplit then jump.
-    setComic(row);
-    setPages(files);
-    setSpreadFlags(flags);
   }, [comicId, settings.autoSplitSpreads]);
 
   useEffect(() => {
@@ -211,6 +234,7 @@ export function useReaderState(
     steps,
     stepIndex: safeStepIndex,
     positionReady,
+    loadError,
     goToStep,
     chromeVisible,
     toggleChrome,

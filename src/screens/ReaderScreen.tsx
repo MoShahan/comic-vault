@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import {
   ActivityIndicator,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -11,6 +12,7 @@ import {
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { StatusBar } from 'expo-status-bar';
 import PagerView from 'react-native-pager-view';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ReaderOverlay } from '@/components/ReaderOverlay';
 import { ReaderPage } from '@/components/ReaderPage';
@@ -27,6 +29,7 @@ const PAGE_WINDOW = 2;
 export function ReaderScreen({ route, navigation }: Props) {
   const { comicId, startFromBeginning } = route.params;
   const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const pagerRef = useRef<PagerView>(null);
   /** True when stepIndex was updated from a user swipe (skip programmatic re-sync). */
   const skipProgrammaticScroll = useRef(false);
@@ -39,6 +42,7 @@ export function ReaderScreen({ route, navigation }: Props) {
     steps,
     stepIndex,
     positionReady,
+    loadError,
     goToStep,
     chromeVisible,
     toggleChrome,
@@ -100,6 +104,23 @@ export function ReaderScreen({ route, navigation }: Props) {
       pagerRef.current?.setPageWithoutAnimation(stepIndex);
     }
   }, [stepIndex, positionReady]);
+
+  if (loadError) {
+    return (
+      <View style={[styles.loading, { paddingTop: insets.top + 16 }]}>
+        <StatusBar style="light" />
+        <Text style={styles.errorTitle}>Can’t open reader</Text>
+        <Text style={styles.loadingText}>{loadError}</Text>
+        <Pressable
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+          hitSlop={12}
+        >
+          <Text style={styles.backButtonText}>Back</Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   if (!comic || steps.length === 0 || !positionReady) {
     return (
@@ -184,6 +205,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 12,
+    paddingHorizontal: 32,
   },
-  loadingText: { color: '#9AA3B2' },
+  loadingText: { color: '#9AA3B2', textAlign: 'center', lineHeight: 20 },
+  errorTitle: { color: '#F2F4F8', fontSize: 18, fontWeight: '600' },
+  backButton: {
+    marginTop: 8,
+    backgroundColor: '#2A2F3A',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  backButtonText: { color: '#F2F4F8', fontWeight: '700' },
 });
