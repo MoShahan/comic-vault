@@ -93,7 +93,7 @@ async function importSingleSource(source: ImportSource, options: ImportOptions):
   const lower = name.toLowerCase();
   if (lower.endsWith('.cbr')) {
     throw new Error(
-      'CBR is not supported in Expo Go. Convert to CBZ on your computer (7-Zip/WinRAR: extract then zip), then add the CBZ to your comics folder.',
+      'CBR is not supported yet. Convert to CBZ on your computer (7-Zip/WinRAR: extract then zip), then add the CBZ to your comics folder.',
     );
   }
   if (!isComicArchiveName(name)) {

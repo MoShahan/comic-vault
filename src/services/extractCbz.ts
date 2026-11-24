@@ -22,6 +22,13 @@ export function isCancelledError(error: unknown): error is CancelledError {
   return error instanceof CancelledError || (error instanceof Error && error.name === 'CancelledError');
 }
 
+/** True for real OOM phrasing — not substrings like "room" / "zoom". */
+export function isLikelyOutOfMemoryMessage(message: string): boolean {
+  return /OutOfMemory|\bOOM\b|out of memory|cannot allocate memory|allocation failed/i.test(
+    message,
+  );
+}
+
 function yieldToUi(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0));
 }
@@ -156,9 +163,9 @@ export async function extractCbzToDirectory(
   } catch (error) {
     if (isCancelledError(error)) throw error;
     const message = error instanceof Error ? error.message : String(error);
-    if (/OutOfMemory|oom|allocate|memory/i.test(message)) {
+    if (isLikelyOutOfMemoryMessage(message)) {
       throw new Error(
-        'Not enough memory to open this CBZ in Expo Go. Try a smaller file or import one comic at a time.',
+        'Not enough memory to open this CBZ. Try a smaller file or import one comic at a time.',
       );
     }
     throw error instanceof Error ? error : new Error(message);

@@ -34,7 +34,15 @@ export function naturalCompare(a: string, b: string): number {
 
 export function titleFromFilename(name: string): string {
   const base = name.replace(/\.(cbz|cbr|zip)$/i, '');
-  return base.replace(/[_-]+/g, ' ').trim() || 'Untitled Comic';
+  // Underscores are always separators. Hyphens between letters stay (X-Men);
+  // hyphens next to digits/edges become spaces (Issue-12 → Issue 12).
+  return (
+    base
+      .replace(/_/g, ' ')
+      .replace(/(?<![A-Za-z])-+|-+(?![A-Za-z])/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim() || 'Untitled Comic'
+  );
 }
 
 export function guessSeries(title: string): string | null {

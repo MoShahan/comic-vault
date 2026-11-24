@@ -41,6 +41,11 @@ describe('titleFromFilename', () => {
     expect(titleFromFilename('story.zip')).toBe('story');
   });
 
+  it('keeps hyphens between letters (X-Men)', () => {
+    expect(titleFromFilename('X-Men_01.cbz')).toBe('X-Men 01');
+    expect(titleFromFilename('Spider-Man #03.cbz')).toBe('Spider-Man #03');
+  });
+
   it('falls back when name is empty after strip', () => {
     expect(titleFromFilename('.cbz')).toBe('Untitled Comic');
   });
