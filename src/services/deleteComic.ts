@@ -1,16 +1,20 @@
 import * as FileSystem from 'expo-file-system/legacy';
 
 import { deleteAllComicRows, deleteComicRow, getComicById } from '@/db/comicRepository';
-import { comicRootFromPagesDir, comicsRoot } from '@/services/paths';
+import { comicSandboxDir, comicsRoot } from '@/services/paths';
 
 import type { DeleteResult } from '@/types/comic';
+
+async function deleteSandboxFolder(comicId: string): Promise<void> {
+  // Derive from id + guard — never trust a string-replaced pagesDir root.
+  const path = comicSandboxDir(comicId);
+  await FileSystem.deleteAsync(path, { idempotent: true });
+}
 
 async function removeAppCopy(id: string): Promise<boolean> {
   const comic = await getComicById(id);
   if (!comic) return false;
-  await FileSystem.deleteAsync(comicRootFromPagesDir(comic.pagesDir), {
-    idempotent: true,
-  });
+  await deleteSandboxFolder(comic.id);
   await deleteComicRow(id);
   return true;
 }
@@ -39,9 +43,7 @@ export async function deleteComicFromDevice(id: string): Promise<DeleteResult> {
   }
 
   const sourceUri = comic.sourceUri;
-  await FileSystem.deleteAsync(comicRootFromPagesDir(comic.pagesDir), {
-    idempotent: true,
-  });
+  await deleteSandboxFolder(comic.id);
   await deleteComicRow(id);
 
   let deviceDeleted = false;

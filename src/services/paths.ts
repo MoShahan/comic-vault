@@ -2,6 +2,11 @@ import * as FileSystem from 'expo-file-system/legacy';
 
 const COMICS_MARKER = '/comics/';
 
+function withTrailingSlash(path: string): string {
+  const normalized = path.replace(/\\/g, '/');
+  return normalized.endsWith('/') ? normalized : `${normalized}/`;
+}
+
 /** Absolute `documentDirectory/comics/` root (trailing slash). */
 export function comicsRoot(): string {
   const root = FileSystem.documentDirectory;
@@ -35,5 +40,45 @@ export function resolveComicPath(stored: string): string {
 
 /** Parent comic folder from a `.../pages/` directory URI. */
 export function comicRootFromPagesDir(pagesDir: string): string {
-  return pagesDir.replace(/pages\/?$/, '');
+  const normalized = withTrailingSlash(pagesDir);
+  if (/\/pages\/$/.test(normalized)) {
+    return normalized.replace(/\/pages\/$/, '/');
+  }
+  // Fallback: first segment under comics/ (id folder).
+  const relative = toStoredComicPath(normalized);
+  const id = relative.split('/').filter(Boolean)[0];
+  if (id) return `${comicsRoot()}${id}/`;
+  return normalized;
+}
+
+/**
+ * True when `path` is exactly one comic folder under the current comics sandbox
+ * (e.g. `…/comics/c_abc/`). Rejects the sandbox root, parents, and outside paths.
+ */
+export function isSafeComicDeleteRoot(path: string): boolean {
+  let root: string;
+  try {
+    root = comicsRoot();
+  } catch {
+    return false;
+  }
+  const sandbox = withTrailingSlash(root);
+  const candidate = withTrailingSlash(path);
+  if (!candidate.startsWith(sandbox) || candidate === sandbox) return false;
+  const rest = candidate.slice(sandbox.length).replace(/\/$/, '');
+  if (!rest || rest.includes('..') || rest.includes('/')) return false;
+  return true;
+}
+
+/** Absolute `comics/<id>/` folder, verified safe for recursive delete. */
+export function comicSandboxDir(comicId: string): string {
+  const id = comicId.trim();
+  if (!id || id.includes('/') || id.includes('\\') || id.includes('..')) {
+    throw new Error('Invalid comic id for sandbox delete.');
+  }
+  const path = `${comicsRoot()}${id}/`;
+  if (!isSafeComicDeleteRoot(path)) {
+    throw new Error('Refusing to delete path outside the comics library sandbox.');
+  }
+  return path;
 }
