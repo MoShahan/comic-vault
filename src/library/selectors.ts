@@ -1,3 +1,5 @@
+import { naturalCompare } from '@/services/naturalSort';
+
 import type { Comic, LibraryFilter, LibrarySort, SortDirection } from '@/types/comic';
 
 /** Default direction when switching to a sort key. */
@@ -12,6 +14,16 @@ export function defaultSortDirection(sort: LibrarySort): SortDirection {
   }
 }
 
+/**
+ * 0–1 reading progress for 0-based `currentPage`.
+ * Last page (`pageCount - 1`) is 100% — same formula for sort bars and detail.
+ */
+export function readingProgressRatio(currentPage: number, pageCount: number): number {
+  if (pageCount <= 0) return 0;
+  const denom = Math.max(pageCount - 1, 1);
+  return Math.min(1, Math.max(0, currentPage / denom));
+}
+
 export function applySort(
   comics: Comic[],
   sort: LibrarySort,
@@ -22,11 +34,11 @@ export function applySort(
 
   switch (sort) {
     case 'title':
-      return list.sort((a, b) => dir * a.title.localeCompare(b.title));
+      return list.sort((a, b) => dir * naturalCompare(a.title, b.title));
     case 'progress':
       return list.sort((a, b) => {
-        const ap = a.pageCount ? a.currentPage / a.pageCount : 0;
-        const bp = b.pageCount ? b.currentPage / b.pageCount : 0;
+        const ap = readingProgressRatio(a.currentPage, a.pageCount);
+        const bp = readingProgressRatio(b.currentPage, b.pageCount);
         return dir * (ap - bp);
       });
     case 'recent':

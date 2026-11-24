@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Image } from 'expo-image';
 
+import { readingProgressRatio } from '@/library/selectors';
 import { useTheme, spacing, radii, typography } from '@/theme';
 
 import type { Comic } from '@/types/comic';
@@ -17,7 +18,7 @@ type Props = {
 
 function ComicCardComponent({ comic, onPress, onLongPress, width }: Props) {
   const { colors } = useTheme();
-  const progress = comic.pageCount > 0 ? comic.currentPage / Math.max(comic.pageCount - 1, 1) : 0;
+  const progress = readingProgressRatio(comic.currentPage, comic.pageCount);
 
   return (
     <Pressable

@@ -11,6 +11,7 @@ import {
   setComicFavorite,
   setComicRead,
 } from '@/db/comicRepository';
+import { readingProgressRatio } from '@/library/selectors';
 import { confirmDeleteComic } from '@/services/confirmDelete';
 import { repairComic } from '@/services/repairComic';
 import { useLibraryStore } from '@/store/libraryStore';
@@ -73,10 +74,9 @@ export function ComicDetailScreen({ route, navigation }: Props) {
     );
   }
 
-  const pageDenom = Math.max(comic.pageCount - 1, 1);
-  const progressPct = comic.pageCount
-    ? Math.round((comic.currentPage / pageDenom) * 100)
-    : 0;
+  const progressPct = Math.round(
+    readingProgressRatio(comic.currentPage, comic.pageCount) * 100,
+  );
   const pageLabel =
     comic.pageCount > 0
       ? `Page ${Math.min(comic.currentPage + 1, comic.pageCount)} of ${comic.pageCount}`

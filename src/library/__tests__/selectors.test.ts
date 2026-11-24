@@ -2,6 +2,7 @@ import {
   applyFilter,
   applySort,
   isSpreadImage,
+  readingProgressRatio,
   selectContinueComic,
   selectSeriesGroups,
   selectVisibleComics,
@@ -88,12 +89,34 @@ describe('applySort', () => {
     ]);
   });
 
+  it('sorts titles with natural number order', () => {
+    const numbered = [
+      makeComic({ id: '10', title: 'Batman 10' }),
+      makeComic({ id: '2', title: 'Batman 2' }),
+      makeComic({ id: '1', title: 'Batman 1' }),
+    ];
+    expect(applySort(numbered, 'title', 'asc').map((c) => c.title)).toEqual([
+      'Batman 1',
+      'Batman 2',
+      'Batman 10',
+    ]);
+  });
+
   it('sorts by progress descending by default', () => {
     expect(applySort(comics, 'progress').map((c) => c.id)).toEqual(['2', '1', '3']);
   });
 
   it('sorts by progress ascending when requested', () => {
     expect(applySort(comics, 'progress', 'asc').map((c) => c.id)).toEqual(['3', '1', '2']);
+  });
+
+  it('treats the last page as 100% progress when sorting', () => {
+    const almost = [
+      makeComic({ id: 'last', title: 'L', currentPage: 9, pageCount: 10 }),
+      makeComic({ id: 'mid', title: 'M', currentPage: 5, pageCount: 10 }),
+    ];
+    expect(applySort(almost, 'progress', 'desc').map((c) => c.id)).toEqual(['last', 'mid']);
+    expect(readingProgressRatio(9, 10)).toBe(1);
   });
 
   it('sorts by recent activity descending by default', () => {
@@ -168,5 +191,17 @@ describe('shouldAutoMarkRead', () => {
     expect(shouldAutoMarkRead(0, 10)).toBe(false);
     expect(shouldAutoMarkRead(9, 10)).toBe(false);
     expect(shouldAutoMarkRead(19, 20)).toBe(false);
+  });
+});
+
+describe('readingProgressRatio', () => {
+  it('maps first and last pages to 0 and 1', () => {
+    expect(readingProgressRatio(0, 20)).toBe(0);
+    expect(readingProgressRatio(19, 20)).toBe(1);
+  });
+
+  it('guards empty and single-page comics', () => {
+    expect(readingProgressRatio(0, 0)).toBe(0);
+    expect(readingProgressRatio(0, 1)).toBe(0);
   });
 });
