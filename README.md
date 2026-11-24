@@ -22,7 +22,7 @@ A static marketing site lives in [`website/`](website/) (plain HTML, CSS, and JS
 2. Under **Build and deployment**, set **Source** to **GitHub Actions**
 3. Push to `main` (the workflow uploads the `website` folder)
 
-The site will be available at [https://MoShahan.github.io/comic-reader-app/](https://MoShahan.github.io/comic-reader-app/). Preview locally by opening `website/index.html` in a browser or serving the `website` folder with any static file server.
+The site will be available at [https://MoShahan.github.io/comic-vault/](https://MoShahan.github.io/comic-vault/). Preview locally by opening `website/index.html` in a browser or serving the `website` folder with any static file server.
 
 ---
 
