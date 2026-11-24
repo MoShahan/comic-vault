@@ -1,5 +1,6 @@
 import { getDb } from '@/db/database';
 import { archiveNameKey } from '@/services/archiveNames';
+import { resolveComicPath, toStoredComicPath } from '@/services/paths';
 
 import type { Comic, FitMode, ReadingDirection, SpreadHalf } from '@/types/comic';
 
@@ -35,8 +36,9 @@ function mapRow(row: ComicRow): Comic {
     series: row.series,
     sourceUri: row.sourceUri,
     sourceFileName: row.sourceFileName,
-    coverPath: row.coverPath,
-    pagesDir: row.pagesDir,
+    // Rebase onto current documentDirectory (legacy rows may store absolute URIs).
+    coverPath: resolveComicPath(row.coverPath),
+    pagesDir: resolveComicPath(row.pagesDir),
     pageCount: row.pageCount,
     currentPage: row.currentPage,
     spreadHalf: row.spreadHalf as SpreadHalf,
@@ -62,8 +64,8 @@ export async function insertComic(comic: Comic): Promise<void> {
       comic.series,
       comic.sourceUri,
       comic.sourceFileName,
-      comic.coverPath,
-      comic.pagesDir,
+      toStoredComicPath(comic.coverPath),
+      toStoredComicPath(comic.pagesDir),
       comic.pageCount,
       comic.currentPage,
       comic.spreadHalf,

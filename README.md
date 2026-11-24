@@ -150,6 +150,7 @@ If the system blocks deleting the original (common with some Android `content://
 | Progress & settings   | Local SQLite (`comicvault.db`)                     |
 | Folder scan / extract | Temporary work under app storage during add        |
 
+- SQLite stores **id-relative** paths under `comics/` (e.g. `c_abc/pages/`); full `file://` URIs are resolved at runtime so iOS container path changes don’t break covers/pages
 - Originals on your phone are left alone until you confirm **Delete**
 - No network calls for comics, no telemetry, no accounts
 

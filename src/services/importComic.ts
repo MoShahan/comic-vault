@@ -14,6 +14,7 @@ import {
 } from '@/services/archiveNames';
 import { CancelledError, extractCbzToDirectory, isCancelledError } from '@/services/extractCbz';
 import { guessSeries, titleFromFilename } from '@/services/naturalSort';
+import { comicsRoot } from '@/services/paths';
 
 import type { Comic, ImportProgress } from '@/types/comic';
 
@@ -21,12 +22,6 @@ type ImportSource = {
   uri: string;
   name: string;
 };
-
-function comicsRoot(): string {
-  const root = FileSystem.documentDirectory;
-  if (!root) throw new Error('Document directory is unavailable.');
-  return `${root}comics/`;
-}
 
 function makeId(): string {
   return `c_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;

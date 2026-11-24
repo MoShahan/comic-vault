@@ -1,7 +1,7 @@
 import * as FileSystem from 'expo-file-system/legacy';
 
 import { deleteAllComicRows, deleteComicRow, getComicById } from '@/db/comicRepository';
-import { comicRootFromPagesDir } from '@/services/paths';
+import { comicRootFromPagesDir, comicsRoot } from '@/services/paths';
 
 import type { DeleteResult } from '@/types/comic';
 
@@ -79,9 +79,10 @@ export async function deleteComicCompletely(id: string): Promise<DeleteResult> {
  * Does not delete original CBZ files in the user’s folder.
  */
 export async function clearLibrarySandbox(): Promise<void> {
-  const root = FileSystem.documentDirectory;
-  if (root) {
-    await FileSystem.deleteAsync(`${root}comics/`, { idempotent: true });
+  try {
+    await FileSystem.deleteAsync(comicsRoot(), { idempotent: true });
+  } catch {
+    // documentDirectory unavailable — still clear DB rows.
   }
   await deleteAllComicRows();
 }

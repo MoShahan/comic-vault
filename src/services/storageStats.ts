@@ -1,6 +1,7 @@
 import * as FileSystem from 'expo-file-system/legacy';
 
 import { formatBytes } from '@/services/format';
+import { comicsRoot } from '@/services/paths';
 
 async function dirSize(uri: string): Promise<number> {
   const info = await FileSystem.getInfoAsync(uri);
@@ -22,11 +23,12 @@ export async function getLibraryStorageStats(): Promise<{
   label: string;
   comicFolders: number;
 }> {
-  const root = FileSystem.documentDirectory;
-  if (!root) {
+  let comicsDir: string;
+  try {
+    comicsDir = comicsRoot();
+  } catch {
     return { bytes: 0, label: '0 B', comicFolders: 0 };
   }
-  const comicsDir = `${root}comics/`;
   const info = await FileSystem.getInfoAsync(comicsDir);
   if (!info.exists) {
     return { bytes: 0, label: '0 B', comicFolders: 0 };

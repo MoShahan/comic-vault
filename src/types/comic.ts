@@ -13,7 +13,9 @@ export type Comic = {
    * Duplicate detection is case-insensitive on this basename (not full path).
    */
   sourceFileName: string | null;
+  /** Resolved file URI for the cover image (DB stores id-relative under `comics/`). */
   coverPath: string;
+  /** Resolved file URI for the pages directory (DB stores id-relative under `comics/`). */
   pagesDir: string;
   pageCount: number;
   currentPage: number;

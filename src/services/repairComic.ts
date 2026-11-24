@@ -3,7 +3,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { getComicById } from '@/db/comicRepository';
 import { getDb } from '@/db/database';
 import { extractCbzToDirectory, listPageFiles } from '@/services/extractCbz';
-import { comicRootFromPagesDir } from '@/services/paths';
+import { comicRootFromPagesDir, toStoredComicPath } from '@/services/paths';
 import { clearSpreadFlagsCache } from '@/services/spreadFlags';
 
 const repairingIds = new Set<string>();
@@ -16,7 +16,7 @@ async function updatePageMetadata(
   const db = await getDb();
   await db.runAsync(
     'UPDATE comics SET pageCount = ?, coverPath = ?, currentPage = MIN(currentPage, ?) WHERE id = ?',
-    [pageCount, coverPath, Math.max(0, pageCount - 1), id],
+    [pageCount, toStoredComicPath(coverPath), Math.max(0, pageCount - 1), id],
   );
 }
 
