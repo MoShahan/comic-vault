@@ -36,20 +36,20 @@ Built for **personal use on your own device** (Expo Go). Comics stay on your pho
 
 ### Library
 
-|                  |                                                                                           |
-| ---------------- | ----------------------------------------------------------------------------------------- |
-| Cover grid       | Each comic shows its **first page** as cover art                                          |
-| Continue reading | Jump back to the last unfinished issue                                                    |
-| Organize         | Filters (all / unread / reading / finished / favorites), sort (recent / title / progress) |
-| Series           | Light grouping inferred from titles (e.g. `Batman #12`)                                   |
-| Folder library   | **Select a folder** (Android) - all CBZ/ZIP files in it appear on your shelf              |
-| Delete           | Confirmation dialog → remove from app **and** try to delete the original file on device   |
+| Feature          | Description                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| Cover grid       | Each comic shows its **first page** as cover art                                            |
+| Continue reading | Jump back to the last unfinished issue                                                      |
+| Organize         | Filters (all / unread / reading / finished / favorites), sort (recent / title / progress)   |
+| Series           | Light grouping inferred from titles (e.g. `Batman #12`)                                     |
+| Folder library   | **Select a folder** (Android) - all CBZ/ZIP files in it appear on your shelf                |
+| Delete           | Confirmation dialog → remove from app **and** try to delete the original file on device     |
 
 ### Reader
 
-|              |                                                                          |
+| Feature      | Description                                                              |
 | ------------ | ------------------------------------------------------------------------ |
-| Navigation   | Swipe left/right or up/down · tap edge zones · always LTR page order    |
+| Navigation   | Swipe left/right or up/down · tap edge zones · always LTR page order     |
 | Progress     | Page position (and double-page half) saved as you read                   |
 | Spreads      | Wide pages auto-split in portrait when enabled                           |
 | Controls     | Scrubber, pinch / double-tap zoom, brightness dimmer, dark reader chrome |
@@ -58,7 +58,7 @@ Built for **personal use on your own device** (Expo Go). Comics stay on your pho
 
 ### App
 
-|         |                                                                 |
+| Feature | Description                                                     |
 | ------- | --------------------------------------------------------------- |
 | Themes  | Light, dark, or follow system                                   |
 | Storage | See how much space the library uses · repair / re-extract pages |
