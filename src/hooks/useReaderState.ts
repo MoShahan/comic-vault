@@ -48,6 +48,8 @@ export function useReaderState(
   const [zoomed, setZoomed] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestProgress = useRef<{ pageIndex: number; half: SpreadHalf } | null>(null);
+  /** "Read from start" must run once per open — not again when steps rebuild. */
+  const appliedStartFromBeginning = useRef(false);
 
   const load = useCallback(async () => {
     const row = await getComicById(comicId);
@@ -91,12 +93,14 @@ export function useReaderState(
 
   useEffect(() => {
     setPositionReady(false);
+    appliedStartFromBeginning.current = false;
   }, [comicId, startFromBeginning]);
 
   useEffect(() => {
     if (!comic || steps.length === 0) return;
 
-    if (startFromBeginning) {
+    if (startFromBeginning && !appliedStartFromBeginning.current) {
+      appliedStartFromBeginning.current = true;
       setStepIndex(0);
       latestProgress.current = { pageIndex: 0, half: 'full' };
       setComic((prev) =>
@@ -112,12 +116,15 @@ export function useReaderState(
       return;
     }
 
+    // Remap to the same page/half when steps rebuild (spread probe, rotation).
+    const targetPage = latestProgress.current?.pageIndex ?? comic.currentPage;
+    const targetHalf = latestProgress.current?.half ?? comic.spreadHalf;
     const idx = steps.findIndex(
       (s) =>
-        s.pageIndex === comic.currentPage &&
-        (comic.spreadHalf === 'full' || s.half === comic.spreadHalf),
+        s.pageIndex === targetPage &&
+        (targetHalf === 'full' || s.half === targetHalf),
     );
-    setStepIndex(idx >= 0 ? idx : Math.min(comic.currentPage, steps.length - 1));
+    setStepIndex(idx >= 0 ? idx : Math.min(targetPage, steps.length - 1));
     setPositionReady(true);
   }, [comic?.id, steps.length, startFromBeginning, comicId, patchComic]); // eslint-disable-line react-hooks/exhaustive-deps
 
