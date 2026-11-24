@@ -5,7 +5,7 @@ let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 export async function getDb(): Promise<SQLite.SQLiteDatabase> {
   if (!dbPromise) {
     dbPromise = (async () => {
-      const db = await SQLite.openDatabaseAsync('comicreader.db');
+      const db = await SQLite.openDatabaseAsync('comicvault.db');
       await db.execAsync(`
         PRAGMA journal_mode = WAL;
         PRAGMA foreign_keys = ON;

@@ -15,7 +15,7 @@ async function removeAppCopy(id: string): Promise<boolean> {
   return true;
 }
 
-/** Remove from Comic Reader only - original CBZ on device is kept. */
+/** Remove from Comic Vault only - original CBZ on device is kept. */
 export async function deleteComicFromApp(id: string): Promise<DeleteResult> {
   const removed = await removeAppCopy(id);
   return {
@@ -26,7 +26,7 @@ export async function deleteComicFromApp(id: string): Promise<DeleteResult> {
 }
 
 /**
- * Remove from Comic Reader and delete the original file on device when possible.
+ * Remove from Comic Vault and delete the original file on device when possible.
  */
 export async function deleteComicFromDevice(id: string): Promise<DeleteResult> {
   const comic = await getComicById(id);
@@ -55,15 +55,15 @@ export async function deleteComicFromDevice(id: string): Promise<DeleteResult> {
         deviceDeleted = true;
       } else {
         deviceDeleteError =
-          'Removed from Comic Reader, but the original file was not found (it may have been moved).';
+          'Removed from Comic Vault, but the original file was not found (it may have been moved).';
       }
     } catch {
       deviceDeleteError =
-        'Removed from Comic Reader, but the original file on your device could not be deleted (permission or location). Delete it manually if needed.';
+        'Removed from Comic Vault, but the original file on your device could not be deleted (permission or location). Delete it manually if needed.';
     }
   } else {
     deviceDeleteError =
-      'Removed from Comic Reader. No original file path was stored, so nothing was deleted on device.';
+      'Removed from Comic Vault. No original file path was stored, so nothing was deleted on device.';
   }
 
   return { appDeleted: true, deviceDeleted, deviceDeleteError };

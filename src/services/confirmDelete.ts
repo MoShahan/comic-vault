@@ -67,7 +67,7 @@ export function confirmDeleteComic(
 export function confirmClearLibrarySandbox(options: { onCleared?: () => void } = {}) {
   Alert.alert(
     'Clear app library?',
-    'This deletes every comic from Comic Reader’s private storage (extracted pages and copies). Your original CBZ files in the folder you selected are not deleted. This cannot be undone.',
+    'This deletes every comic from Comic Vault’s private storage (extracted pages and copies). Your original CBZ files in the folder you selected are not deleted. This cannot be undone.',
     [
       { text: 'Cancel', style: 'cancel' },
       {

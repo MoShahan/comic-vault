@@ -98,7 +98,7 @@ export function LibraryScreen() {
   const header = useMemo(
     () => (
       <View>
-        <Text style={[styles.brand, { color: colors.text }]}>Comic Reader</Text>
+        <Text style={[styles.brand, { color: colors.text }]}>Comic Vault</Text>
         <Text style={[styles.sub, { color: colors.muted }]}>Your personal shelf</Text>
 
         {continueComic ? (
@@ -141,7 +141,7 @@ export function LibraryScreen() {
         ]}
       >
         <Text style={[styles.brand, { color: colors.text, textAlign: 'center' }]}>
-          Comic Reader
+          Comic Vault
         </Text>
         <Text style={[styles.empty, { color: colors.muted }]}>
           Select a folder that contains your CBZ comics. Everything in that folder will show up

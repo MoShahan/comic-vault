@@ -168,7 +168,7 @@ export function SettingsScreen() {
       <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <Text style={[styles.label, { color: colors.muted }]}>Library</Text>
         <Text style={{ color: colors.text, ...typography.body }}>
-          Use Select folder on the library screen (Android). Comic Reader scans that folder for CBZ
+          Use Select folder on the library screen (Android). Comic Vault scans that folder for CBZ
           and ZIP files and adds them to your shelf.
         </Text>
       </View>

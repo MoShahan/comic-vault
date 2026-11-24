@@ -1,4 +1,4 @@
-# Comic Reader
+# Comic Vault
 
 A personal **Expo / React Native** comic reader for your phone.
 
@@ -75,7 +75,7 @@ Built for **personal use on your own device** (Expo Go). Comics stay on your pho
 
 ### Why CBR is hard
 
-**CBZ** is a ZIP archive of images. ZIP is well supported in JavaScript, so ComicReader can unpack pages with libraries like `fflate` inside Expo Go.
+**CBZ** is a ZIP archive of images. ZIP is well supported in JavaScript, so Comic Vault can unpack pages with libraries like `fflate` inside Expo Go.
 
 **CBR** is a **RAR** archive. RAR is a proprietary format:
 
@@ -91,7 +91,7 @@ So CBR support is possible later with a native build, but it is intentionally de
 1. Open the `.cbr` in [7-Zip](https://www.7-zip.org/) or WinRAR
 2. Extract all page images
 3. Zip the folder and rename `.zip` → `.cbz`
-4. Put the CBZ in your comics folder and select that folder in ComicReader
+4. Put the CBZ in your comics folder and select that folder in Comic Vault
 
 ---
 
@@ -136,7 +136,7 @@ After you confirm delete:
 2. The SQLite library row is removed
 3. The original file is deleted when the OS allows it
 
-If the system blocks deleting the original (common with some Android `content://` URIs), the comic is still removed from ComicReader and you’ll get a short alert to delete the file manually.
+If the system blocks deleting the original (common with some Android `content://` URIs), the comic is still removed from Comic Vault and you’ll get a short alert to delete the file manually.
 
 > Folder selection uses Android’s Storage Access Framework. iOS folder picking is not available in this Expo Go build yet.
 
@@ -147,7 +147,7 @@ If the system blocks deleting the original (common with some Android `content://
 | Data                  | Where it lives                                     |
 | --------------------- | -------------------------------------------------- |
 | Page images           | App private storage (`documentDirectory/comics/…`) |
-| Progress & settings   | Local SQLite (`comicreader.db`)                    |
+| Progress & settings   | Local SQLite (`comicvault.db`)                     |
 | Folder scan / extract | Temporary work under app storage during add        |
 
 - Originals on your phone are left alone until you confirm **Delete**
@@ -185,8 +185,8 @@ GitHub Actions on every push and pull request:
 
 | Workflow                                                                          | Checks                                  |
 | --------------------------------------------------------------------------------- | --------------------------------------- |
-| [Comic Reader - Unit Tests & Typecheck](.github/workflows/tests.yml)              | TypeScript (`tsc`) + Jest unit tests    |
-| [Comic Reader - ESLint (Import Order & Code Quality)](.github/workflows/lint.yml) | ESLint, including import groups / order |
+| [Comic Vault - Unit Tests & Typecheck](.github/workflows/tests.yml)              | TypeScript (`tsc`) + Jest unit tests    |
+| [Comic Vault - ESLint (Import Order & Code Quality)](.github/workflows/lint.yml) | ESLint, including import groups / order |
 
 The job fails if any check fails.
 

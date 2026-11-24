@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Comic Reader",
-    "slug": "ComicReader",
+    "name": "Comic Vault",
+    "slug": "ComicVault",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
@@ -13,10 +13,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.personal.comicreader"
+      "bundleIdentifier": "com.personal.comicvault"
     },
     "android": {
-      "package": "com.personal.comicreader",
+      "package": "com.personal.comicvault",
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundColor": "#0F1115"
