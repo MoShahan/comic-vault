@@ -1,6 +1,7 @@
 import {
   archiveBasename,
   archiveNameKey,
+  isComicArchiveName,
   normalizeArchiveName,
   safeDecodeURIComponent,
 } from '@/services/archiveNames';
@@ -35,5 +36,17 @@ describe('archiveBasename / archiveNameKey', () => {
     expect(archiveNameKey('content://tree/primary%3AComics/broken%name.CBZ')).toBe(
       'broken%name.cbz',
     );
+  });
+});
+
+describe('isComicArchiveName', () => {
+  it('accepts cbz and zip', () => {
+    expect(isComicArchiveName('Batman.CBZ')).toBe(true);
+    expect(isComicArchiveName('issue.zip')).toBe(true);
+  });
+
+  it('rejects other extensions', () => {
+    expect(isComicArchiveName('issue.cbr')).toBe(false);
+    expect(isComicArchiveName('notes.txt')).toBe(false);
   });
 });

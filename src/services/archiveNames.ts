@@ -28,3 +28,9 @@ export function archiveBasename(uriOrPath: string): string {
 export function archiveNameKey(uriOrName: string): string {
   return normalizeArchiveName(archiveBasename(uriOrName));
 }
+
+/** True for CBZ / ZIP comic archives (CBR is rejected elsewhere with a clearer error). */
+export function isComicArchiveName(name: string): boolean {
+  const lower = normalizeArchiveName(name);
+  return lower.endsWith('.cbz') || lower.endsWith('.zip');
+}

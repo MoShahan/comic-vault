@@ -10,11 +10,11 @@ import {
 import {
   archiveBasename,
   archiveNameKey,
-  normalizeArchiveName,
+  isComicArchiveName,
 } from '@/services/archiveNames';
 import { CancelledError, extractCbzToDirectory, isCancelledError } from '@/services/extractCbz';
 import { guessSeries, titleFromFilename } from '@/services/naturalSort';
-import { comicsRoot } from '@/services/paths';
+import { comicSandboxDir } from '@/services/paths';
 
 import type { Comic, ImportProgress } from '@/types/comic';
 
@@ -25,15 +25,6 @@ type ImportSource = {
 
 function makeId(): string {
   return `c_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
-}
-
-function fileNameFromUri(uri: string): string {
-  return archiveBasename(uri) || 'comic.cbz';
-}
-
-function isComicArchiveName(name: string): boolean {
-  const lower = normalizeArchiveName(name);
-  return lower.endsWith('.cbz') || lower.endsWith('.zip');
 }
 
 export type ImportOptions = {
@@ -115,7 +106,7 @@ async function importSingleSource(source: ImportSource, options: ImportOptions):
   }
 
   const id = makeId();
-  const comicDir = `${comicsRoot()}${id}/`;
+  const comicDir = comicSandboxDir(id);
   const pagesDir = `${comicDir}pages/`;
   const archivePath = `${comicDir}source.cbz`;
 
@@ -299,7 +290,7 @@ export async function pickFolderAndImportComics(
   const uris = await FileSystem.StorageAccessFramework.readDirectoryAsync(permissions.directoryUri);
 
   const sources: ImportSource[] = uris
-    .map((uri) => ({ uri, name: fileNameFromUri(uri) }))
+    .map((uri) => ({ uri, name: archiveBasename(uri) || 'comic.cbz' }))
     .filter((s) => isComicArchiveName(s.name));
 
   if (sources.length === 0) {

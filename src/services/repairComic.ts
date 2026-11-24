@@ -1,24 +1,11 @@
 import * as FileSystem from 'expo-file-system/legacy';
 
-import { getComicById } from '@/db/comicRepository';
-import { getDb } from '@/db/database';
+import { getComicById, updateComicPageMetadata } from '@/db/comicRepository';
 import { extractCbzToDirectory, listPageFiles } from '@/services/extractCbz';
-import { comicRootFromPagesDir, toStoredComicPath } from '@/services/paths';
+import { comicSandboxDir } from '@/services/paths';
 import { clearSpreadFlagsCache } from '@/services/spreadFlags';
 
 const repairingIds = new Set<string>();
-
-async function updatePageMetadata(
-  id: string,
-  pageCount: number,
-  coverPath: string,
-): Promise<void> {
-  const db = await getDb();
-  await db.runAsync(
-    'UPDATE comics SET pageCount = ?, coverPath = ?, currentPage = MIN(currentPage, ?) WHERE id = ?',
-    [pageCount, toStoredComicPath(coverPath), Math.max(0, pageCount - 1), id],
-  );
-}
 
 async function finalizePagesDir(
   id: string,
@@ -28,7 +15,7 @@ async function finalizePagesDir(
   if (pages.length === 0) {
     throw new Error('Repair produced no readable pages.');
   }
-  await updatePageMetadata(id, pages.length, pages[0]);
+  await updateComicPageMetadata(id, pages.length, pages[0]);
   return { pageCount: pages.length };
 }
 
@@ -47,7 +34,7 @@ export async function repairComic(id: string): Promise<{ pageCount: number }> {
     const comic = await getComicById(id);
     if (!comic) throw new Error('Comic not found');
 
-    const root = comicRootFromPagesDir(comic.pagesDir);
+    const root = comicSandboxDir(comic.id);
     const archivePath = `${root}source.cbz`;
     const tempPagesDir = `${root}pages_tmp/`;
     const archiveInfo = await FileSystem.getInfoAsync(archivePath);
@@ -88,7 +75,7 @@ export async function repairComic(id: string): Promise<{ pageCount: number }> {
     if (pages.length === 0) {
       throw new Error('No pages found. Re-import this comic.');
     }
-    await updatePageMetadata(id, pages.length, pages[0]);
+    await updateComicPageMetadata(id, pages.length, pages[0]);
     return { pageCount: pages.length };
   } finally {
     repairingIds.delete(id);

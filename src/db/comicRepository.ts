@@ -149,6 +149,19 @@ export async function setComicFavorite(id: string, isFavorite: boolean): Promise
   await db.runAsync('UPDATE comics SET isFavorite = ? WHERE id = ?', [isFavorite ? 1 : 0, id]);
 }
 
+/** After repair/re-extract: update page count + cover; clamp currentPage into range. */
+export async function updateComicPageMetadata(
+  id: string,
+  pageCount: number,
+  coverPath: string,
+): Promise<void> {
+  const db = await getDb();
+  await db.runAsync(
+    'UPDATE comics SET pageCount = ?, coverPath = ?, currentPage = MIN(currentPage, ?) WHERE id = ?',
+    [pageCount, toStoredComicPath(coverPath), Math.max(0, pageCount - 1), id],
+  );
+}
+
 export async function getAllComicIds(): Promise<string[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<{ id: string }>('SELECT id FROM comics');
