@@ -6,7 +6,6 @@ import {
   selectContinueComic,
   selectSeriesGroups,
   selectVisibleComics,
-  shouldAutoMarkRead,
 } from '@/library/selectors';
 import { makeComic } from '@/test/fixtures';
 
@@ -183,14 +182,6 @@ describe('isSpreadImage', () => {
 
   it('guards against zero height', () => {
     expect(isSpreadImage(1000, 0)).toBe(false);
-  });
-});
-
-describe('shouldAutoMarkRead', () => {
-  it('never auto-marks as read', () => {
-    expect(shouldAutoMarkRead(0, 10)).toBe(false);
-    expect(shouldAutoMarkRead(9, 10)).toBe(false);
-    expect(shouldAutoMarkRead(19, 20)).toBe(false);
   });
 });
 

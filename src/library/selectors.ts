@@ -103,11 +103,3 @@ export function isSpreadImage(width: number, height: number): boolean {
   if (height <= 0) return false;
   return width / height > SPREAD_ASPECT_RATIO;
 }
-
-/**
- * Mark-as-read is never inferred from progress.
- * Finishing the last page must not flip isRead.
- */
-export function shouldAutoMarkRead(_currentPage: number, _pageCount: number): boolean {
-  return false;
-}

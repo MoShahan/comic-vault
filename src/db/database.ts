@@ -6,7 +6,6 @@ async function openAndMigrate(): Promise<SQLite.SQLiteDatabase> {
   const db = await SQLite.openDatabaseAsync('comicvault.db');
   await db.execAsync(`
         PRAGMA journal_mode = WAL;
-        PRAGMA foreign_keys = ON;
 
         CREATE TABLE IF NOT EXISTS comics (
           id TEXT PRIMARY KEY NOT NULL,

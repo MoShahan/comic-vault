@@ -71,11 +71,6 @@ export async function deleteComicFromDevice(id: string): Promise<DeleteResult> {
   return { appDeleted: true, deviceDeleted, deviceDeleteError };
 }
 
-/** @deprecated Prefer deleteComicFromApp / deleteComicFromDevice */
-export async function deleteComicCompletely(id: string): Promise<DeleteResult> {
-  return deleteComicFromDevice(id);
-}
-
 /**
  * Wipe extracted comics + DB rows from the app sandbox.
  * Does not delete original CBZ files in the user’s folder.

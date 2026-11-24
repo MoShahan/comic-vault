@@ -149,24 +149,6 @@ export async function setComicFavorite(id: string, isFavorite: boolean): Promise
   await db.runAsync('UPDATE comics SET isFavorite = ? WHERE id = ?', [isFavorite ? 1 : 0, id]);
 }
 
-export async function updateComicPrefs(
-  id: string,
-  prefs: Partial<Pick<Comic, 'fitMode' | 'readingDirection' | 'series'>>,
-): Promise<void> {
-  const db = await getDb();
-  const comic = await getComicById(id);
-  if (!comic) return;
-  await db.runAsync(
-    `UPDATE comics SET fitMode = ?, readingDirection = ?, series = ? WHERE id = ?`,
-    [
-      prefs.fitMode ?? comic.fitMode,
-      prefs.readingDirection ?? comic.readingDirection,
-      prefs.series !== undefined ? prefs.series : comic.series,
-      id,
-    ],
-  );
-}
-
 export async function getAllComicIds(): Promise<string[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<{ id: string }>('SELECT id FROM comics');
