@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
+import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { confirmClearLibrarySandbox } from '@/services/confirmDelete';
@@ -56,9 +57,12 @@ export function SettingsScreen() {
     setStorage({ label: stats.label, comicFolders: stats.comicFolders });
   }, []);
 
-  useEffect(() => {
-    void refreshStorage();
-  }, [refreshStorage]);
+  // Tab stays mounted — refresh whenever Settings is focused (not only first mount).
+  useFocusEffect(
+    useCallback(() => {
+      void refreshStorage();
+    }, [refreshStorage]),
+  );
 
   return (
     <ScrollView
