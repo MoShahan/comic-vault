@@ -2,7 +2,16 @@ import { Platform } from 'react-native';
 
 import * as FileSystem from 'expo-file-system/legacy';
 
-import { findComicBySourceFileName, insertComic } from '@/db/comicRepository';
+import {
+  findComicBySourceFileName,
+  getImportedArchiveNameKeys,
+  insertComic,
+} from '@/db/comicRepository';
+import {
+  archiveBasename,
+  archiveNameKey,
+  normalizeArchiveName,
+} from '@/services/archiveNames';
 import { CancelledError, extractCbzToDirectory, isCancelledError } from '@/services/extractCbz';
 import { guessSeries, titleFromFilename } from '@/services/naturalSort';
 
@@ -24,17 +33,11 @@ function makeId(): string {
 }
 
 function fileNameFromUri(uri: string): string {
-  const decoded = decodeURIComponent(uri);
-  const parts = decoded.split(/[/\\]/).filter(Boolean);
-  return parts[parts.length - 1] || 'comic.cbz';
-}
-
-function normalizeArchiveName(name: string): string {
-  return name.trim().toLowerCase();
+  return archiveBasename(uri) || 'comic.cbz';
 }
 
 function isComicArchiveName(name: string): boolean {
-  const lower = name.toLowerCase();
+  const lower = normalizeArchiveName(name);
   return lower.endsWith('.cbz') || lower.endsWith('.zip');
 }
 
@@ -58,7 +61,7 @@ export type FolderImportResult = {
 
 class DuplicateComicError extends Error {
   constructor(fileName: string) {
-    super(`Already in library: ${fileName}`);
+    super(`Already imported (same filename): ${fileName}`);
     this.name = 'DuplicateComicError';
   }
 }
@@ -194,13 +197,13 @@ async function importSources(
 ): Promise<FolderImportResult> {
   const imported: Comic[] = [];
   const failures: ImportFailure[] = [];
-  const seenInBatch = new Set<string>();
+  const knownKeys = await getImportedArchiveNameKeys();
   let skipped = 0;
 
   for (let i = 0; i < sources.length; i += 1) {
     if (options.isCancelled?.()) break;
     const source = sources[i];
-    const key = normalizeArchiveName(source.name);
+    const key = archiveNameKey(source.name);
 
     options.onProgress?.({
       phase: 'copying',
@@ -209,21 +212,21 @@ async function importSources(
       message: `Adding ${i + 1} of ${sources.length}: ${source.name}`,
     });
 
-    if (seenInBatch.has(key)) {
+    if (key && knownKeys.has(key)) {
       skipped += 1;
       options.onProgress?.({
         phase: 'copying',
         current: i + 1,
         total: sources.length,
-        message: `Skipping duplicate ${source.name}`,
+        message: `Already imported (same filename): ${source.name}`,
       });
       continue;
     }
-    seenInBatch.add(key);
 
     try {
       const comic = await importSingleSource(source, options);
       imported.push(comic);
+      if (key) knownKeys.add(key);
       options.onComicImported?.(comic);
     } catch (error) {
       if (isCancelledError(error)) {
@@ -231,11 +234,12 @@ async function importSources(
       }
       if (error instanceof DuplicateComicError) {
         skipped += 1;
+        if (key) knownKeys.add(key);
         options.onProgress?.({
           phase: 'copying',
           current: i + 1,
           total: sources.length,
-          message: `Skipping duplicate ${source.name}`,
+          message: `Already imported (same filename): ${source.name}`,
         });
         continue;
       }

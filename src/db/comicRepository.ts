@@ -1,4 +1,5 @@
 import { getDb } from '@/db/database';
+import { archiveNameKey } from '@/services/archiveNames';
 
 import type { Comic, FitMode, ReadingDirection, SpreadHalf } from '@/types/comic';
 
@@ -21,14 +22,10 @@ type ComicRow = {
   importedAt: number;
 };
 
-function normalizeArchiveName(name: string): string {
-  return name.trim().toLowerCase();
-}
-
-function basenameFromUri(uri: string): string {
-  const decoded = decodeURIComponent(uri);
-  const parts = decoded.split(/[/\\]/).filter(Boolean);
-  return normalizeArchiveName(parts[parts.length - 1] || '');
+function rowArchiveKey(row: Pick<ComicRow, 'sourceFileName' | 'sourceUri'>): string {
+  if (row.sourceFileName?.trim()) return archiveNameKey(row.sourceFileName);
+  if (row.sourceUri) return archiveNameKey(row.sourceUri);
+  return '';
 }
 
 function mapRow(row: ComicRow): Comic {
@@ -94,28 +91,38 @@ export async function getComicById(id: string): Promise<Comic | null> {
   return row ? mapRow(row) : null;
 }
 
-/** True if this archive filename is already in the library (case-insensitive). */
+/**
+ * Case-insensitive filename match (JS-normalized). Same archive name from
+ * another folder counts as already imported — intentional for this personal shelf.
+ */
 export async function findComicBySourceFileName(fileName: string): Promise<Comic | null> {
-  const key = normalizeArchiveName(fileName);
+  const key = archiveNameKey(fileName);
   if (!key) return null;
 
   const db = await getDb();
-  const byName = await db.getFirstAsync<ComicRow>(
-    'SELECT * FROM comics WHERE lower(sourceFileName) = ? LIMIT 1',
-    [key],
+  const rows = await db.getAllAsync<ComicRow>(
+    `SELECT * FROM comics
+     WHERE (sourceFileName IS NOT NULL AND trim(sourceFileName) != '')
+        OR (sourceUri IS NOT NULL AND trim(sourceUri) != '')`,
   );
-  if (byName) return mapRow(byName);
-
-  // Legacy rows without sourceFileName - match URI basename.
-  const legacy = await db.getAllAsync<ComicRow>(
-    `SELECT * FROM comics WHERE sourceFileName IS NULL OR trim(sourceFileName) = ''`,
-  );
-  for (const row of legacy) {
-    if (row.sourceUri && basenameFromUri(row.sourceUri) === key) {
-      return mapRow(row);
-    }
+  for (const row of rows) {
+    if (rowArchiveKey(row) === key) return mapRow(row);
   }
   return null;
+}
+
+/** All normalized archive name keys currently in the library (one query). */
+export async function getImportedArchiveNameKeys(): Promise<Set<string>> {
+  const db = await getDb();
+  const rows = await db.getAllAsync<Pick<ComicRow, 'sourceFileName' | 'sourceUri'>>(
+    'SELECT sourceFileName, sourceUri FROM comics',
+  );
+  const keys = new Set<string>();
+  for (const row of rows) {
+    const key = rowArchiveKey(row);
+    if (key) keys.add(key);
+  }
+  return keys;
 }
 
 export async function updateComicProgress(

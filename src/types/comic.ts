@@ -8,7 +8,10 @@ export type Comic = {
   title: string;
   series: string | null;
   sourceUri: string | null;
-  /** Original archive filename (e.g. `Batman #01.cbz`) used for duplicate detection. */
+  /**
+   * Original archive filename (e.g. `Batman #01.cbz`).
+   * Duplicate detection is case-insensitive on this basename (not full path).
+   */
   sourceFileName: string | null;
   coverPath: string;
   pagesDir: string;
