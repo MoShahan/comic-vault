@@ -90,29 +90,67 @@
             <div class="phone phone-lg float">
               <div class="phone-notch"></div>
               <div class="phone-screen mock-library">
-                <div class="mock-status">9:41</div>
-                <div class="mock-title">Library</div>
-                <div class="continue-chip">
-                  <span>Continue</span>
-                  <strong>Batman #12</strong>
+                <div class="mock-status">
+                  <span>9:41</span>
+                  <span class="mock-status-icons" aria-hidden="true"></span>
                 </div>
-                <div class="cover-grid">
-                  <div class="cover cover-batman-12">
-                    <span class="cover-issue">#12</span>
-                    <span class="cover-name">Batman</span>
+                <div class="mock-title">Library</div>
+                <div class="continue-card">
+                  <div class="continue-thumb">
+                    <img src="./assets/cover-batman-12.jpg" alt="" />
                   </div>
-                  <div class="cover cover-batman-13">
-                    <span class="cover-issue">#13</span>
-                    <span class="cover-name">Batman</span>
+                  <div class="continue-body">
+                    <span class="continue-eyebrow">Continue reading</span>
+                    <strong>Batman #12</strong>
+                    <span class="continue-meta">Page 9 of 22</span>
                   </div>
-                  <div class="cover cover-year-one">
-                    <span class="cover-issue">Vol 1</span>
-                    <span class="cover-name">Year One</span>
-                  </div>
-                  <div class="cover cover-long-halloween">
-                    <span class="cover-issue">TPB</span>
-                    <span class="cover-name">Long Halloween</span>
-                  </div>
+                </div>
+                <div class="filter-row">
+                  <span class="chip active">All</span>
+                  <span class="chip">Unread</span>
+                  <span class="chip">Reading</span>
+                  <span class="chip">Finished</span>
+                </div>
+                <div class="sort-row">
+                  <span class="chip active">Recent</span>
+                  <span class="chip">Title</span>
+                  <span class="chip">Progress</span>
+                </div>
+                <div class="shelf-grid">
+                  <article class="shelf-card">
+                    <div class="cover-art">
+                      <img src="./assets/cover-batman-12.jpg" alt="Batman #12" />
+                      <span class="fav-dot">★</span>
+                    </div>
+                    <p class="shelf-title">Batman #12</p>
+                    <div class="shelf-track"><span style="width: 41%"></span></div>
+                    <p class="shelf-meta">9/22</p>
+                  </article>
+                  <article class="shelf-card">
+                    <div class="cover-art">
+                      <img src="./assets/cover-batman-13.jpg" alt="Batman #13" />
+                    </div>
+                    <p class="shelf-title">Batman #13</p>
+                    <div class="shelf-track"><span style="width: 100%"></span></div>
+                    <p class="shelf-meta">24/24</p>
+                  </article>
+                  <article class="shelf-card">
+                    <div class="cover-art">
+                      <img src="./assets/cover-year-one.jpg" alt="Batman: Year One" />
+                    </div>
+                    <p class="shelf-title">Batman: Year One</p>
+                    <div class="shelf-track"><span style="width: 0%"></span></div>
+                    <p class="shelf-meta">1/96</p>
+                  </article>
+                  <article class="shelf-card">
+                    <div class="cover-art">
+                      <img src="./assets/cover-long-halloween.jpg" alt="The Long Halloween" />
+                      <span class="fav-dot">★</span>
+                    </div>
+                    <p class="shelf-title">The Long Halloween</p>
+                    <div class="shelf-track"><span style="width: 18%"></span></div>
+                    <p class="shelf-meta">32/174</p>
+                  </article>
                 </div>
               </div>
             </div>
@@ -202,36 +240,68 @@
           <header class="section-head reveal">
             <p class="eyebrow">Screens</p>
             <h2>A quick tour of the app</h2>
-            <p>Demo UI with Batman titles - illustrative mockups, not device captures.</p>
+            <p>UI mockups matched to the live app - not device screenshots.</p>
           </header>
           <div class="screen-row">
             <figure class="screen-item reveal">
               <div class="phone">
                 <div class="phone-notch"></div>
                 <div class="phone-screen mock-library">
-                  <div class="mock-status">9:41</div>
-                  <div class="mock-title">Library</div>
-                  <div class="continue-chip">
-                    <span>Continue</span>
-                    <strong>Batman #12</strong>
+                  <div class="mock-status">
+                    <span>9:41</span>
+                    <span class="mock-status-icons" aria-hidden="true"></span>
                   </div>
-                  <div class="cover-grid">
-                    <div class="cover cover-batman-12">
-                      <span class="cover-issue">#12</span>
-                      <span class="cover-name">Batman</span>
+                  <div class="mock-title">Library</div>
+                  <div class="continue-card compact">
+                    <div class="continue-thumb">
+                      <img src="./assets/cover-batman-12.jpg" alt="" />
                     </div>
-                    <div class="cover cover-batman-13">
-                      <span class="cover-issue">#13</span>
-                      <span class="cover-name">Batman</span>
+                    <div class="continue-body">
+                      <span class="continue-eyebrow">Continue reading</span>
+                      <strong>Batman #12</strong>
+                      <span class="continue-meta">Page 9 of 22</span>
                     </div>
-                    <div class="cover cover-year-one">
-                      <span class="cover-issue">Vol 1</span>
-                      <span class="cover-name">Year One</span>
-                    </div>
-                    <div class="cover cover-long-halloween">
-                      <span class="cover-issue">TPB</span>
-                      <span class="cover-name">Long Halloween</span>
-                    </div>
+                  </div>
+                  <div class="filter-row">
+                    <span class="chip active">All</span>
+                    <span class="chip">Unread</span>
+                    <span class="chip">Reading</span>
+                  </div>
+                  <div class="shelf-grid">
+                    <article class="shelf-card">
+                      <div class="cover-art">
+                        <img src="./assets/cover-batman-12.jpg" alt="Batman #12" />
+                        <span class="fav-dot">★</span>
+                      </div>
+                      <p class="shelf-title">Batman #12</p>
+                      <div class="shelf-track"><span style="width: 41%"></span></div>
+                      <p class="shelf-meta">9/22</p>
+                    </article>
+                    <article class="shelf-card">
+                      <div class="cover-art">
+                        <img src="./assets/cover-batman-13.jpg" alt="Batman #13" />
+                      </div>
+                      <p class="shelf-title">Batman #13</p>
+                      <div class="shelf-track"><span style="width: 100%"></span></div>
+                      <p class="shelf-meta">24/24</p>
+                    </article>
+                    <article class="shelf-card">
+                      <div class="cover-art">
+                        <img src="./assets/cover-year-one.jpg" alt="Batman: Year One" />
+                      </div>
+                      <p class="shelf-title">Year One</p>
+                      <div class="shelf-track"><span style="width: 0%"></span></div>
+                      <p class="shelf-meta">1/96</p>
+                    </article>
+                    <article class="shelf-card">
+                      <div class="cover-art">
+                        <img src="./assets/cover-long-halloween.jpg" alt="The Long Halloween" />
+                        <span class="fav-dot">★</span>
+                      </div>
+                      <p class="shelf-title">Long Halloween</p>
+                      <div class="shelf-track"><span style="width: 18%"></span></div>
+                      <p class="shelf-meta">32/174</p>
+                    </article>
                   </div>
                 </div>
               </div>
@@ -242,19 +312,45 @@
               <div class="phone">
                 <div class="phone-notch"></div>
                 <div class="phone-screen mock-detail">
-                  <div class="mock-status">9:41</div>
-                  <div class="detail-cover cover-batman-12">
-                    <span class="cover-name">Batman</span>
-                    <span class="cover-issue">#12</span>
+                  <div class="mock-status">
+                    <span>9:41</span>
+                    <span class="mock-status-icons" aria-hidden="true"></span>
                   </div>
-                  <div class="detail-meta">
-                    <h4>Batman #12</h4>
-                    <p>Series · Batman</p>
-                    <div class="progress-bar"><span style="width: 42%"></span></div>
-                    <p class="progress-label">Page 9 of 22</p>
-                    <div class="detail-actions">
-                      <span class="pill primary">Continue</span>
-                      <span class="pill">Favorite</span>
+                  <div class="detail-hero">
+                    <div class="detail-cover cover-art">
+                      <img src="./assets/cover-batman-12.jpg" alt="Batman #12" />
+                    </div>
+                    <div class="detail-meta">
+                      <h4>Batman #12</h4>
+                      <p class="detail-series">Batman</p>
+                      <div class="badge-row">
+                        <span class="status-badge accent">Favorite</span>
+                        <span class="status-badge">Reading</span>
+                      </div>
+                      <div class="progress-bar"><span style="width: 41%"></span></div>
+                      <p class="progress-label">Page 9 of 22 · 41%</p>
+                      <p class="progress-label">Last read Nov 20, 2026</p>
+                    </div>
+                  </div>
+                  <div class="detail-card">
+                    <span class="btn-primary">Continue reading</span>
+                    <span class="btn-link">Read from start</span>
+                  </div>
+                  <div class="detail-card">
+                    <p class="card-label">Library</p>
+                    <div class="toggle-row">
+                      <div>
+                        <strong>Finished</strong>
+                        <span>Still open</span>
+                      </div>
+                      <span class="switch" aria-hidden="true"></span>
+                    </div>
+                    <div class="toggle-row">
+                      <div>
+                        <strong>Favorite</strong>
+                        <span>Pinned in Favorites</span>
+                      </div>
+                      <span class="switch on" aria-hidden="true"></span>
                     </div>
                   </div>
                 </div>
@@ -267,16 +363,20 @@
                 <div class="phone-notch"></div>
                 <div class="phone-screen mock-reader">
                   <div class="reader-page">
-                    <div class="reader-art">
-                      <span class="bat-symbol" aria-hidden="true"></span>
-                      <p>Gotham · Night</p>
-                    </div>
+                    <img
+                      class="reader-art-img"
+                      src="./assets/reader-page.jpg"
+                      alt="Batman #12 page 9"
+                    />
                   </div>
                   <div class="reader-chrome">
                     <span>Batman #12</span>
                     <span>9 / 22</span>
                   </div>
-                  <div class="reader-scrubber"><span></span></div>
+                  <div class="reader-bottom">
+                    <span class="reader-mark">Mark as read</span>
+                    <div class="reader-scrubber"><span></span></div>
+                  </div>
                 </div>
               </div>
               <figcaption>Reader</figcaption>
@@ -286,26 +386,35 @@
               <div class="phone">
                 <div class="phone-notch"></div>
                 <div class="phone-screen mock-settings">
-                  <div class="mock-status">9:41</div>
+                  <div class="mock-status">
+                    <span>9:41</span>
+                    <span class="mock-status-icons" aria-hidden="true"></span>
+                  </div>
                   <div class="mock-title">Settings</div>
-                  <ul class="settings-rows">
-                    <li>
-                      <span>Theme</span>
-                      <strong>System</strong>
-                    </li>
-                    <li>
-                      <span>Auto-split spreads</span>
-                      <strong>On</strong>
-                    </li>
-                    <li>
-                      <span>Library storage</span>
-                      <strong>128 MB</strong>
-                    </li>
-                    <li>
-                      <span>Formats</span>
-                      <strong>CBZ / ZIP</strong>
-                    </li>
-                  </ul>
+                  <div class="settings-block">
+                    <p class="card-label">Theme</p>
+                    <div class="filter-row">
+                      <span class="chip active">System</span>
+                      <span class="chip">Light</span>
+                      <span class="chip">Dark</span>
+                    </div>
+                  </div>
+                  <div class="settings-block switch-block">
+                    <div>
+                      <strong>Auto-split double pages</strong>
+                      <span>Wide spreads as left then right in portrait</span>
+                    </div>
+                    <span class="switch on" aria-hidden="true"></span>
+                  </div>
+                  <div class="settings-block storage-block">
+                    <p class="card-label">Library storage</p>
+                    <p class="storage-size">128 MB</p>
+                    <p class="storage-hint">4 comic folders in app sandbox</p>
+                    <div class="storage-actions">
+                      <span>Refresh</span>
+                      <span class="danger">Clear extracted pages</span>
+                    </div>
+                  </div>
                 </div>
               </div>
               <figcaption>Settings</figcaption>
