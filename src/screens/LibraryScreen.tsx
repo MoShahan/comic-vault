@@ -18,12 +18,12 @@ import { ComicCard } from '@/components/ComicCard';
 import { ContinueCard } from '@/components/ContinueCard';
 import { ImportProgressModal } from '@/components/ImportProgressModal';
 import { LibraryControls } from '@/components/LibraryControls';
+import { useConfirmDelete } from '@/hooks/useConfirmDelete';
 import { useComicImport, useLibrary } from '@/hooks/useLibrary';
 import {
   selectContinueComic as pickContinueComic,
   selectVisibleComics as pickVisibleComics,
 } from '@/library/selectors';
-import { confirmDeleteComic } from '@/services/confirmDelete';
 import { isCancelledError } from '@/services/extractCbz';
 import { useLibraryStore } from '@/store/libraryStore';
 import { useTheme, spacing, typography, radii } from '@/theme';
@@ -38,6 +38,7 @@ export function LibraryScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const isFocused = useIsFocused();
   const { loading, filter, sort, sortDirection, setFilter, setSort } = useLibrary();
+  const { confirmDeleteComic } = useConfirmDelete();
   const {
     selectFolder,
     cancel,
@@ -74,9 +75,12 @@ export function LibraryScreen() {
     [navigation],
   );
 
-  const onDeleteComic = useCallback((comicId: string, title: string) => {
-    confirmDeleteComic(comicId, title);
-  }, []);
+  const onDeleteComic = useCallback(
+    (comicId: string, title: string) => {
+      confirmDeleteComic(comicId, title);
+    },
+    [confirmDeleteComic],
+  );
 
   const onContinue = useCallback(() => {
     const id = continueComic?.id;

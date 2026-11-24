@@ -11,8 +11,8 @@ import {
   setComicFavorite,
   setComicRead,
 } from '@/db/comicRepository';
+import { useConfirmDelete } from '@/hooks/useConfirmDelete';
 import { readingProgressRatio } from '@/library/selectors';
-import { confirmDeleteComic } from '@/services/confirmDelete';
 import { repairComic } from '@/services/repairComic';
 import { useLibraryStore } from '@/store/libraryStore';
 import { useTheme, spacing, typography, radii } from '@/theme';
@@ -37,6 +37,7 @@ export function ComicDetailScreen({ route, navigation }: Props) {
   const { comicId } = route.params;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const { confirmDeleteComic } = useConfirmDelete();
   const storeComic = useLibraryStore((s) => s.comics.find((c) => c.id === comicId) ?? null);
   const [dbComic, setDbComic] = useState<Comic | null>(null);
   const [repairing, setRepairing] = useState(false);

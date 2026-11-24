@@ -5,7 +5,7 @@ import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-nat
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { confirmClearLibrarySandbox } from '@/services/confirmDelete';
+import { useConfirmDelete } from '@/hooks/useConfirmDelete';
 import { getLibraryStorageStats } from '@/services/storageStats';
 import { useTheme, spacing, typography, radii } from '@/theme';
 
@@ -50,6 +50,7 @@ function OptionRow<T extends string>({
 export function SettingsScreen() {
   const { colors, mode, setMode, settings, patchSettings } = useTheme();
   const insets = useSafeAreaInsets();
+  const { confirmClearLibrarySandbox } = useConfirmDelete();
   const [storage, setStorage] = useState({ label: '…', comicFolders: 0 });
 
   const refreshStorage = useCallback(async () => {
