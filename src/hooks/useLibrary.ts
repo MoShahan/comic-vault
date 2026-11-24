@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { isCancelledError } from '@/services/extractCbz';
 import { pickFolderAndImportComics } from '@/services/importComic';
 import { useLibraryStore } from '@/store/libraryStore';
 
@@ -54,6 +55,11 @@ export function useComicImport() {
       });
       if (list.length) await refresh();
       return list;
+    } catch (error) {
+      if (isCancelledError(error)) {
+        return [];
+      }
+      throw error;
     } finally {
       setImporting(false);
       setModalVisible(false);

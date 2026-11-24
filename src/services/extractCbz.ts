@@ -11,6 +11,17 @@ export type ExtractCallbacks = {
   isCancelled?: () => boolean;
 };
 
+export class CancelledError extends Error {
+  constructor(message = 'Import cancelled') {
+    super(message);
+    this.name = 'CancelledError';
+  }
+}
+
+export function isCancelledError(error: unknown): error is CancelledError {
+  return error instanceof CancelledError || (error instanceof Error && error.name === 'CancelledError');
+}
+
 function yieldToUi(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0));
 }
@@ -58,7 +69,7 @@ export async function extractCbzToDirectory(
   callbacks: ExtractCallbacks = {},
 ): Promise<string[]> {
   if (callbacks.isCancelled?.()) {
-    throw new Error('CANCELLED');
+    throw new CancelledError();
   }
 
   await LegacyFS.makeDirectoryAsync(pagesDir, { intermediates: true });
@@ -125,7 +136,7 @@ export async function extractCbzToDirectory(
     let finalized = false;
     while ((handle.offset ?? 0) < size) {
       if (callbacks.isCancelled?.()) {
-        throw new Error('CANCELLED');
+        throw new CancelledError();
       }
       if (extractError) throw extractError;
 
@@ -143,8 +154,8 @@ export async function extractCbzToDirectory(
       throw extractError;
     }
   } catch (error) {
+    if (isCancelledError(error)) throw error;
     const message = error instanceof Error ? error.message : String(error);
-    if (message === 'CANCELLED') throw error;
     if (/OutOfMemory|oom|allocate|memory/i.test(message)) {
       throw new Error(
         'Not enough memory to open this CBZ in Expo Go. Try a smaller file or import one comic at a time.',
@@ -164,7 +175,7 @@ export async function extractCbzToDirectory(
   const pagePaths: string[] = [];
   for (let i = 0; i < staged.length; i += 1) {
     if (callbacks.isCancelled?.()) {
-      throw new Error('CANCELLED');
+      throw new CancelledError();
     }
 
     const { tempPath, entryName } = staged[i];

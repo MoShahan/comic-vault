@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
 
 import { findComicBySourceFileName, insertComic } from '@/db/comicRepository';
-import { extractCbzToDirectory } from '@/services/extractCbz';
+import { CancelledError, extractCbzToDirectory, isCancelledError } from '@/services/extractCbz';
 import { guessSeries, titleFromFilename } from '@/services/naturalSort';
 
 import type { Comic, ImportProgress } from '@/types/comic';
@@ -85,7 +85,7 @@ async function importSingleSource(source: ImportSource, options: ImportOptions):
       message: `Copying ${name}…`,
     });
     await FileSystem.copyAsync({ from: source.uri, to: archivePath });
-    if (options.isCancelled?.()) throw new Error('CANCELLED');
+    if (options.isCancelled?.()) throw new CancelledError();
 
     report({
       phase: 'extracting',
@@ -174,7 +174,9 @@ async function importSources(sources: ImportSource[], options: ImportOptions): P
       imported.push(comic);
       options.onComicImported?.(comic);
     } catch (error) {
-      if (error instanceof Error && error.message === 'CANCELLED') throw error;
+      if (isCancelledError(error)) {
+        break;
+      }
       if (error instanceof DuplicateComicError) {
         skipped += 1;
         options.onProgress?.({

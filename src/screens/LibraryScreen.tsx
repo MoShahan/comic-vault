@@ -24,6 +24,7 @@ import {
   selectVisibleComics as pickVisibleComics,
 } from '@/library/selectors';
 import { confirmDeleteComic } from '@/services/confirmDelete';
+import { isCancelledError } from '@/services/extractCbz';
 import { useLibraryStore } from '@/store/libraryStore';
 import { useTheme, spacing, typography, radii } from '@/theme';
 
@@ -63,7 +64,11 @@ export function LibraryScreen() {
       showProgressModal();
       return;
     }
-    void selectFolder().catch((e: Error) => Alert.alert('Could not open folder', e.message));
+    void selectFolder().catch((e: unknown) => {
+      if (isCancelledError(e)) return;
+      const message = e instanceof Error ? e.message : 'Something went wrong.';
+      Alert.alert('Could not open folder', message);
+    });
   }, [importing, selectFolder, showProgressModal]);
 
   const progressBanner =
