@@ -45,3 +45,6 @@ yarn-error.*
 
 # Cursor IDE
 .cursor/
+
+# Local fix backlog (not for GitHub)
+FIXES.md
