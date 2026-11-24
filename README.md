@@ -14,87 +14,6 @@ Select a folder of local **CBZ** files, browse a cover-based library, and read w
 
 ---
 
-## Website
-
-A static marketing site lives in [`website/`](website/) (plain HTML, CSS, and JS). GitHub Pages branch deploy only supports `/` or `/docs`, so this repo publishes `website/` with a GitHub Action ([`.github/workflows/pages.yml`](.github/workflows/pages.yml)).
-
-1. Open the repo on GitHub → **Settings** → **Pages**
-2. Under **Build and deployment**, set **Source** to **GitHub Actions**
-3. Push to `main` (the workflow uploads the `website` folder)
-
-The site will be available at [https://MoShahan.github.io/comic-vault/](https://MoShahan.github.io/comic-vault/). Preview locally by opening `website/index.html` in a browser or serving the `website` folder with any static file server.
-
----
-
-## Why this exists
-
-Built for **personal use on your own device** (Expo Go). Comics stay on your phone. Reading progress and preferences are saved locally with SQLite. **Mark as read is always a conscious choice** - finishing the last page never auto-marks a comic.
-
----
-
-## Features
-
-### Library
-
-| Feature          | Description                                                                                 |
-| ---------------- | ------------------------------------------------------------------------------------------- |
-| Cover grid       | Each comic shows its **first page** as cover art                                            |
-| Continue reading | Jump back to the last unfinished issue                                                      |
-| Organize         | Filters (all / unread / reading / finished / favorites), sort (recent / title / progress)   |
-| Series           | Light grouping inferred from titles (e.g. `Batman #12`)                                     |
-| Folder library   | **Select a folder** (Android) - all CBZ/ZIP files in it appear on your shelf                |
-| Delete           | Confirmation dialog → remove from app **and** try to delete the original file on device     |
-
-### Reader
-
-| Feature      | Description                                                              |
-| ------------ | ------------------------------------------------------------------------ |
-| Navigation   | Swipe left/right or up/down · tap edge zones · always LTR page order     |
-| Progress     | Page position (and double-page half) saved as you read                   |
-| Spreads      | Wide pages auto-split in portrait when enabled                           |
-| Controls     | Scrubber, pinch / double-tap zoom, brightness dimmer, dark reader chrome |
-| Comfort      | Keep screen awake while reading · pages always fit and centered on screen |
-| Mark as read | Manual only - from detail screen or reader chrome                        |
-
-### App
-
-| Feature | Description                                                     |
-| ------- | --------------------------------------------------------------- |
-| Themes  | Light, dark, or follow system                                   |
-| Storage | See how much space the library uses · repair / re-extract pages |
-| Privacy | No accounts · no comic uploads · no analytics                   |
-
----
-
-## Supported formats
-
-| Format            | Status                                                      |
-| ----------------- | ----------------------------------------------------------- |
-| **CBZ** / **ZIP** | Supported in Expo Go                                        |
-| **CBR** (RAR)     | Not supported in Expo Go - convert to CBZ first (see below) |
-
-### Why CBR is hard
-
-**CBZ** is a ZIP archive of images. ZIP is well supported in JavaScript, so Comic Vault can unpack pages with libraries like `fflate` inside Expo Go.
-
-**CBR** is a **RAR** archive. RAR is a proprietary format:
-
-- There is no reliable, pure-JavaScript RAR unpacker suitable for production (especially newer RAR5 archives).
-- Unpacking needs a **native** UnRAR / libarchive library on iOS and Android.
-- Native modules require a **custom Expo dev build** (or ejecting), not the standard **Expo Go** app.
-- UnRAR also has **licensing** constraints that complicate shipping it in an open-source / personal build.
-
-So CBR support is possible later with a native build, but it is intentionally deferred. Converting CBR → CBZ on a PC is the practical path for Expo Go.
-
-### Convert CBR → CBZ (Windows)
-
-1. Open the `.cbr` in [7-Zip](https://www.7-zip.org/) or WinRAR
-2. Extract all page images
-3. Zip the folder and rename `.zip` → `.cbz`
-4. Put the CBZ in your comics folder and select that folder in Comic Vault
-
----
-
 ## Quick start
 
 **Requirements:** Node.js 22+, phone with [Expo Go](https://expo.dev/go), same Wi‑Fi as your computer.
@@ -106,102 +25,19 @@ npm install
 npm start
 ```
 
-Scan the QR code with Expo Go. On Android, use the Expo Go app; on iOS, the Camera app works with Expo Go installed.
-
-| Command                           | What it does                   |
-| --------------------------------- | ------------------------------ |
-| `npm start`                       | Start Expo dev server          |
-| `npm run android` / `ios` / `web` | Platform shortcuts             |
-| `npm test`                        | Unit tests                     |
-| `npm run lint`                    | ESLint (includes import order) |
-| `npm run lint:fix`                | ESLint with auto-fix           |
-| `npm run typecheck`               | TypeScript check               |
+Scan the QR code with Expo Go. Full clone / run / EAS / CI steps: **[docs/SETUP.md](docs/SETUP.md)**.
 
 ---
 
-## How to use
+## Docs
 
-1. **Select folder** (Android) - pick a folder of CBZ/ZIP comics; they appear on your shelf
-2. Open a cover → **Start** or **Continue** reading
-3. Tap the **center** of a page for controls (scrubber, mark read, dimmer)
-4. Tap edges or swipe to turn pages
-5. Use **Mark as read** when _you_ decide you’re done
-6. **Delete** asks for confirmation, then clears the app copy and attempts to remove the original file
+| Doc | What’s in it |
+| --- | ------------ |
+| [Features & usage](docs/FEATURES.md) | Library / reader / app features, how to use, CBZ vs CBR |
+| [Setup & builds](docs/SETUP.md) | Clone, run, commands, EAS production build, website Pages, CI |
+| [Project details](docs/PROJECT.md) | Why it exists, tech stack, `src/` layout, storage & privacy |
 
-### Delete behavior
-
-After you confirm delete:
-
-1. Extracted pages in the app sandbox are removed
-2. The SQLite library row is removed
-3. The original file is deleted when the OS allows it
-
-If the system blocks deleting the original (common with some Android `content://` URIs), the comic is still removed from Comic Vault and you’ll get a short alert to delete the file manually.
-
-> Folder selection uses Android’s Storage Access Framework. iOS folder picking is not available in this Expo Go build yet.
-
----
-
-## Storage & privacy
-
-| Data                  | Where it lives                                     |
-| --------------------- | -------------------------------------------------- |
-| Page images           | App private storage (`documentDirectory/comics/…`) |
-| Progress & settings   | Local SQLite (`comicvault.db`)                     |
-| Folder scan / extract | Temporary work under app storage during add        |
-
-- SQLite stores **id-relative** paths under `comics/` (e.g. `c_abc/pages/`); full `file://` URIs are resolved at runtime so iOS container path changes don’t break covers/pages
-- On startup, orphan `comics/<id>/` folders with no library row (e.g. killed mid-import) are deleted
-- Originals on your phone are left alone until you confirm **Delete**
-- No network calls for comics, no telemetry, no accounts
-
----
-
-## Project structure
-
-```text
-src/
-├── components/     # Cards, reader page, overlay, import modal
-├── db/             # SQLite (comics + settings)
-├── hooks/          # Library, import, reader state
-├── library/        # Pure selectors (filter, sort, spreads)
-├── navigation/     # Tabs + stack
-├── screens/        # Library, Detail, Reader, Settings
-├── services/       # Folder add, extract, delete, repair, storage
-├── store/          # Zustand library UI state
-├── theme/          # Light/dark tokens + provider
-└── types/          # Shared TypeScript types
-```
-
----
-
-## Testing & CI
-
-```bash
-npm test
-npm run lint
-npm run typecheck
-```
-
-GitHub Actions on every push and pull request:
-
-| Workflow                                                          | Checks                                              |
-| ----------------------------------------------------------------- | --------------------------------------------------- |
-| [Comic Vault - CI](.github/workflows/ci.yml)                      | ESLint, TypeScript (`tsc`), and Jest (parallel jobs) |
-| [Comic Vault - GitHub Pages](.github/workflows/pages.yml)         | Deploys `website/` to GitHub Pages                   |
-
-The job fails if any check fails.
-
-**Pre-commit:** [Husky](https://typicode.github.io/husky/) runs [lint-staged](https://github.com/lint-staged/lint-staged) on `git commit`. Staged `.js` / `.jsx` / `.ts` / `.tsx` files are passed through `eslint --fix` (import order, groups, and other auto-fixable rules). Remaining lint errors block the commit. After `npm install`, the hook is installed via the `prepare` script.
-
----
-
-## Tech stack
-
-- **Expo SDK 57** · React Native · TypeScript
-- **expo-sqlite** for library metadata & settings
-- **expo-file-system** + **fflate** for CBZ extract
-- **React Navigation** · **Zustand** · **expo-image**
+Marketing site: [`website/`](website/) → [https://MoShahan.github.io/comic-vault/](https://MoShahan.github.io/comic-vault/)
 
 ---
 
